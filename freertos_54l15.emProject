@@ -74,6 +74,11 @@
       <configuration Name="Debug" build_exclude_from_build="No" />
       <file file_name="Source/nrfx/mdk/gcc_startup_nrf54l15_application.S" />
       <file file_name="Source/main.c" />
+      <file file_name="Source/nrfx/soc/nrfx_atomic.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
+      <file file_name="Source/nrfx_glue.c" />
+      <file file_name="Source/nrfx/drivers/src/nrfx_uarte.c" />
       <file file_name="Source/nrfx/mdk/system_nrf54l.c" />
     </folder>
   </project>
