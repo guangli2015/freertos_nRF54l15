@@ -48,7 +48,7 @@
       arm_target_device_name="nRF54L15_M33"
       arm_target_interface_type="SWD"
       c_preprocessor_definitions="NRF54L15_XXAA;NRF_APPLICATION"
-      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include"
+      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure;Source/FreeRTOS/include"
       debug_stack_pointer_start="__stack_end__"
       debug_target_connection="J-Link"
       gcc_entry_point="Reset_Handler"
@@ -67,7 +67,33 @@
     <configuration
       LIBRARY_IO_TYPE="SEMIHOST (host-formatted)"
       Name="Release_MinSize" />
+    <folder Name="freeRTOS">
+      <folder Name="portable">
+        <folder Name="common">
+          <file file_name="Source/FreeRTOS/portable/Common/mpu_wrappers.c" />
+          <file file_name="Source/FreeRTOS/portable/Common/mpu_wrappers_v2.c" />
+        </folder>
+        <folder Name="gcc">
+          <folder Name="ARM_CM33_NTZ">
+            <file file_name="Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure/mpu_wrappers_v2_asm.c" />
+            <file file_name="Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure/port.c" />
+            <file file_name="Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c" />
+          </folder>
+        </folder>
+        <folder Name="MemMang">
+          <file file_name="Source/FreeRTOS/portable/MemMang/heap_4.c" />
+        </folder>
+      </folder>
+      <file file_name="Source/FreeRTOS/croutine.c" />
+      <file file_name="Source/FreeRTOS/event_groups.c" />
+      <file file_name="Source/FreeRTOS/list.c" />
+      <file file_name="Source/FreeRTOS/queue.c" />
+      <file file_name="Source/FreeRTOS/stream_buffer.c" />
+      <file file_name="Source/FreeRTOS/tasks.c" />
+      <file file_name="Source/FreeRTOS/timers.c" />
+    </folder>
     <folder Name="Setup">
+      <file file_name="Source/FreeRTOSConfig.h" />
       <file file_name="Setup/nrf54l15_xxaa_application.ld" />
     </folder>
     <folder Name="Source">

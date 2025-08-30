@@ -9,6 +9,9 @@ File    : main.c
 Purpose : Generic application start
 
 */
+/* FreeRTOS include. */
+#include "FreeRTOS.h"
+#include "task.h"
 #define NRFX_UARTE_ENABLED 1
 #define NRFX_UARTE30_ENABLED 1
 #define NRFX_UARTE00_ENABLED 1
@@ -48,6 +51,13 @@ Purpose : Generic application start
 #ifndef BOARD_PIN_LED_3
 #define BOARD_PIN_LED_3 NRF_PIN_PORT_TO_PIN_NUMBER(14, 1)
 #endif
+
+/* Stack overflow hook. */
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
+{
+    /* Force an assert. */
+    configASSERT( pcTaskName == 0 );
+}
 #if 1
 static const nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(30);
 /* Receive buffer used in UARTE ISR callback */
