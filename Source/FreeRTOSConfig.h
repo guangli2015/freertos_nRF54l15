@@ -73,7 +73,7 @@ extern uint32_t SystemCoreClock;
 
 /* Constants that build features in or out. */
 #define configUSE_MUTEXES                               1
-#define configUSE_TICKLESS_IDLE                         1
+#define configUSE_TICKLESS_IDLE                         0
 #define configUSE_APPLICATION_TASK_TAG                  0
 #define configUSE_NEWLIB_REENTRANT                      0
 #define configUSE_CO_ROUTINES                           0
@@ -177,4 +177,26 @@ extern uint32_t SystemCoreClock;
 /* Enable static allocation. */
 #define configSUPPORT_STATIC_ALLOCATION                 1
 
+
+
+#define NRFX_CLOCK_ENABLED 1
+#define NRFX_CLOCK_DEFAULT_CONFIG_IRQ_PRIORITY 7
+#define NRFX_CLOCK_CONFIG_LF_SRC 1
+#define NRFX_GRTC_ENABLED 1
+#define NRFX_UARTE_ENABLED 1
+#define NRFX_UARTE30_ENABLED 1
+
+#define NRFX_UARTE00_ENABLED 1
+
+
+#define NRFX_UARTE20_ENABLED 1
+
+
+#define NRFX_UARTE21_ENABLED 1
+
+
+#define NRFX_UARTE22_ENABLED 1
+
+
+#define NRFX_UARTE30_ENABLED 1
 #endif /* FREERTOS_CONFIG_H */

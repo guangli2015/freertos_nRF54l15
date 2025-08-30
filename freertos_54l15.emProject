@@ -103,7 +103,9 @@
       <file file_name="Source/nrfx/soc/nrfx_atomic.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
+      <file file_name="Source/nrfx/drivers/src/nrfx_clock.c" />
       <file file_name="Source/nrfx_glue.c" />
+      <file file_name="Source/nrfx/drivers/src/nrfx_grtc.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_uarte.c" />
       <file file_name="Source/nrfx/mdk/system_nrf54l.c" />
     </folder>

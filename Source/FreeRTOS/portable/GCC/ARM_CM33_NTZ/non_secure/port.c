@@ -35,6 +35,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include <nrfx_grtc.h>
+#include <nrfx_clock.h>
 /* MPU includes. */
 #include "mpu_wrappers.h"
 #include "mpu_syscall_numbers.h"
@@ -773,7 +775,113 @@ PRIVILEGED_DATA static volatile uint32_t ulCriticalNesting = 0xaaaaaaaaUL;
     }
 
 #endif /* configUSE_TICKLESS_IDLE */
-/*-----------------------------------------------------------*/
+/*--------------------add GRTC driver for systick by Andrew------------------------------*/
+#define SYS_CLOCK_HW_CYCLES_PER_SEC 1000000
+#define SYS_CLOCK_TICKS_PER_SEC 1000
+#define CYC_PER_TICK                                                                               \
+	((uint64_t)SYS_CLOCK_HW_CYCLES_PER_SEC / (uint64_t)SYS_CLOCK_TICKS_PER_SEC)
+static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_context);
+static nrfx_grtc_channel_t system_clock_channel_data = {
+	.handler = sys_clock_timeout_handler,
+	.p_context = NULL,
+	.channel = (uint8_t)-1,
+};
+static uint64_t last_count; /* Time (SYSCOUNTER value) @last sys_clock_announce() */
+static inline uint64_t counter(void)
+{
+	uint64_t now;
+	nrfx_grtc_syscounter_get(&now);
+	return now;
+}
+static inline uint64_t counter_sub(uint64_t a, uint64_t b)
+{
+	return (a - b);
+}
+/*
+ * Program a new callback in the absolute time given by <value>
+ */
+static void system_timeout_set_abs(uint64_t value)
+{
+	nrfx_grtc_syscounter_cc_absolute_set(&system_clock_channel_data, value,
+					     true);
+}
+static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_context)
+{
+	//ARG_UNUSED(id);
+	//ARG_UNUSED(p_context);
+	uint64_t dticks;
+	uint64_t now = counter();
+
+	//if (unlikely(now < cc_val)) {
+	//	return;
+	//}
+
+	dticks = counter_sub(cc_val, last_count) / CYC_PER_TICK;
+
+	last_count += dticks * CYC_PER_TICK;
+
+
+	system_timeout_set_abs(last_count + CYC_PER_TICK);
+
+        uint32_t ulPreviousMask;
+
+    ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
+    traceISR_ENTER();
+    {
+        /* Increment the RTOS tick. */
+        if( xTaskIncrementTick() != pdFALSE )
+        {
+            traceISR_EXIT_TO_SCHEDULER();
+            /* Pend a context switch. */
+            portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;
+        }
+        else
+        {
+            traceISR_EXIT();
+        }
+    }
+    portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+}
+
+static void clk_event_handler(nrfx_clock_evt_type_t event){}
+static void system_timeout_set_relative(uint64_t value)
+{
+	if (value <= NRF_GRTC_SYSCOUNTER_CCADD_MASK) {
+		nrfx_grtc_syscounter_cc_relative_set(&system_clock_channel_data, value, true,
+						     NRFX_GRTC_CC_RELATIVE_SYSCOUNTER);
+	} else {
+		nrfx_grtc_syscounter_cc_absolute_set(&system_clock_channel_data, value + counter(),
+						     true);
+	}
+}
+static int sys_clock_driver_init(void)
+{
+  nrfx_err_t err_code;
+
+  nrfx_grtc_clock_source_set(NRF_GRTC_CLKSEL_LFXO);
+
+  err_code = nrfx_grtc_init(0);
+  if (err_code != NRFX_SUCCESS) {
+		return -1;
+  }
+
+
+  err_code = nrfx_grtc_syscounter_start(true, &system_clock_channel_data.channel);
+  if (err_code != NRFX_SUCCESS) {
+		return -1;
+  }
+	
+  system_timeout_set_relative(CYC_PER_TICK);
+  return 0;
+
+}
+void SysTick_Configuration(void)
+{
+  nrfx_clock_init(clk_event_handler);	
+  nrfx_clock_enable();
+  sys_clock_driver_init();
+  nrfx_clock_lfclk_start();
+}
 
 __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FUNCTION */
 {

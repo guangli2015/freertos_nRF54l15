@@ -12,7 +12,7 @@ Purpose : Generic application start
 /* FreeRTOS include. */
 #include "FreeRTOS.h"
 #include "task.h"
-#define NRFX_UARTE_ENABLED 1
+/*#define NRFX_UARTE_ENABLED 1
 #define NRFX_UARTE30_ENABLED 1
 #define NRFX_UARTE00_ENABLED 1
 #define NRFX_UARTE20_ENABLED 1
@@ -21,7 +21,7 @@ Purpose : Generic application start
 #define NRFX_UARTE21_ENABLED 1
 
 
-#define NRFX_UARTE22_ENABLED 1
+#define NRFX_UARTE22_ENABLED 1*/
 
 #define BOARD_APP_UARTE_PIN_TX NRF_PIN_PORT_TO_PIN_NUMBER(0, 0)
 

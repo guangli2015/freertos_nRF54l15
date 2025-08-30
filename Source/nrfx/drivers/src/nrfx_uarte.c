@@ -34,10 +34,7 @@
 #include <nrfx.h>
 #define NRFX_UARTE_ENABLED 1
 #define NRFX_UARTE30_ENABLED 1
-
 #define NRFX_UARTE00_ENABLED 1
-
-
 #define NRFX_UARTE20_ENABLED 1
 
 
@@ -45,9 +42,6 @@
 
 
 #define NRFX_UARTE22_ENABLED 1
-
-
-#define NRFX_UARTE30_ENABLED 1
 
 #if NRFX_CHECK(NRFX_UARTE_ENABLED)
 
