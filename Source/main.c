@@ -129,12 +129,26 @@ static void uarte_event_handler(nrfx_uarte_event_t const *event, void *ctx)
 	}
 }
 #endif
+static void led_toggle_task_function (void * pvParameter)
+{
+   
+    while (true)
+    {
+        nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
+
+        /* Delay a task for a given number of ticks */
+        vTaskDelay(200);
+
+        /* Tasks must be implemented to never return... */
+    }
+}
+TaskHandle_t  led_toggle_task_handle;
 int main(void)
 {
     int count = 1;
 int err;
 
-#if 1
+#if 0
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,
 								     BOARD_APP_UARTE_PIN_RX);
     uarte_config.config.hwfc = NRF_UARTE_HWFC_ENABLED;
@@ -166,7 +180,7 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_0);
 nrf_gpio_cfg_output(BOARD_PIN_LED_1);
 nrf_gpio_cfg_output(BOARD_PIN_LED_2);
 nrf_gpio_cfg_output(BOARD_PIN_LED_3);
-    while (count++)
+   // while (count++)
     {
         //rt_pin_write(RT_BSP_LED_PIN, PIN_HIGH);
         nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
@@ -181,11 +195,73 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         //rt_pin_write(RT_BSP_LED_PIN, PIN_LOW);
         //rt_thread_mdelay(3000);
     }
+
+    xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
+        /* Start FreeRTOS scheduler. */
+    vTaskStartScheduler();
+
+    while (true)
+    {
+        /* FreeRTOS should not be here... FreeRTOS goes back to the start of stack
+         * in vTaskStartScheduler function. */
+    }
     return 0;
 }
 
 void _start(void) {
 main();
     
+}
+
+/* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
+ * implementation of vApplicationGetIdleTaskMemory() to provide the memory that
+ * is used by the Idle task. */
+void vApplicationGetIdleTaskMemory( StaticTask_t ** ppxIdleTaskTCBBuffer,
+                                    StackType_t ** ppxIdleTaskStackBuffer,
+                                    uint32_t * pulIdleTaskStackSize )
+{
+    /* If the buffers to be provided to the Idle task are declared inside this
+     * function then they must be declared static - otherwise they will be
+     * allocated on the stack and so not exists after this function exits. */
+    static StaticTask_t xIdleTaskTCB;
+    static StackType_t uxIdleTaskStack[ configMINIMAL_STACK_SIZE ] __attribute__( ( aligned( 32 ) ) );
+
+    /* Pass out a pointer to the StaticTask_t structure in which the Idle
+     * task's state will be stored. */
+    *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
+
+    /* Pass out the array that will be used as the Idle task's stack. */
+    *ppxIdleTaskStackBuffer = uxIdleTaskStack;
+
+    /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
+     * Note that, as the array is necessarily of type StackType_t,
+     * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
+    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+}
+
+/* configUSE_STATIC_ALLOCATION and configUSE_TIMERS are both set to 1, so the
+ * application must provide an implementation of vApplicationGetTimerTaskMemory()
+ * to provide the memory that is used by the Timer service task. */
+void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
+                                     StackType_t ** ppxTimerTaskStackBuffer,
+                                     uint32_t * pulTimerTaskStackSize )
+{
+    /* If the buffers to be provided to the Timer task are declared inside this
+     * function then they must be declared static - otherwise they will be
+     * allocated on the stack and so not exists after this function exits. */
+    static StaticTask_t xTimerTaskTCB;
+    static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ] __attribute__( ( aligned( 32 ) ) );
+
+    /* Pass out a pointer to the StaticTask_t structure in which the Timer
+     * task's state will be stored. */
+    *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
+
+    /* Pass out the array that will be used as the Timer task's stack. */
+    *ppxTimerTaskStackBuffer = uxTimerTaskStack;
+
+    /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
+     * Note that, as the array is necessarily of type StackType_t,
+     * configTIMER_TASK_STACK_DEPTH is specified in words, not bytes. */
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 /*************************** End of file ****************************/
