@@ -32,7 +32,7 @@
  */
 
 #include <nrfx.h>
-//#define NRFX_CLOCK_ENABLED 1
+#define NRFX_CLOCK_ENABLED 1
 #if NRFX_CHECK(NRFX_CLOCK_ENABLED)
 
 #include <nrfx_clock.h>

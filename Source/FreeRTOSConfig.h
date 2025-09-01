@@ -172,7 +172,7 @@ extern uint32_t SystemCoreClock;
 #define configGENERATE_RUN_TIME_STATS                   0
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
 #define portGET_RUN_TIME_COUNTER_VALUE()                0
-#define configTICK_RATE_HZ                              ( ( TickType_t ) 100 )
+#define configTICK_RATE_HZ                              ( ( TickType_t ) 1000 )
 
 /* Enable static allocation. */
 #define configSUPPORT_STATIC_ALLOCATION                 1

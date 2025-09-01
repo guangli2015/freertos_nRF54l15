@@ -12,6 +12,7 @@ Purpose : Generic application start
 /* FreeRTOS include. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "timers.h"
 /*#define NRFX_UARTE_ENABLED 1
 #define NRFX_UARTE30_ENABLED 1
 #define NRFX_UARTE00_ENABLED 1
@@ -134,15 +135,26 @@ static void led_toggle_task_function (void * pvParameter)
    
     while (true)
     {
-        nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
-
+       // nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
+          nrf_gpio_pin_toggle(BOARD_PIN_LED_0);
         /* Delay a task for a given number of ticks */
-        vTaskDelay(200);
+        vTaskDelay(5000);
 
         /* Tasks must be implemented to never return... */
     }
 }
 TaskHandle_t  led_toggle_task_handle;
+TimerHandle_t led_toggle_timer_handle;  /**< Reference to LED1 toggling FreeRTOS timer. */
+/**@brief The function to call when the LED1 FreeRTOS timer expires.
+ *
+ * @param[in] pvParameter   Pointer that will be used as the parameter for the timer.
+ */
+static void led_toggle_timer_callback (TimerHandle_t xTimer )
+{
+   
+    nrf_gpio_pin_toggle(BOARD_PIN_LED_1);
+}
+StaticTimer_t myTimerBuffer;
 int main(void)
 {
     int count = 1;
@@ -197,6 +209,11 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
     }
 
     xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
+
+        /* Start timer for LED1 blinking */
+    led_toggle_timer_handle = xTimerCreateStatic( "LED1", 1000, pdTRUE, NULL, led_toggle_timer_callback,&myTimerBuffer);
+  xTimerStart(led_toggle_timer_handle, 0);
+
         /* Start FreeRTOS scheduler. */
     vTaskStartScheduler();
 
