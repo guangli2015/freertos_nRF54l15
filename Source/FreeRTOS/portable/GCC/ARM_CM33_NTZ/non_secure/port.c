@@ -860,7 +860,7 @@ static int sys_clock_driver_init(void)
 
   nrfx_grtc_clock_source_set(NRF_GRTC_CLKSEL_LFXO);
 
-  err_code = nrfx_grtc_init(0);
+  err_code = nrfx_grtc_init(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
   if (err_code != NRFX_SUCCESS) {
 		return -1;
   }
