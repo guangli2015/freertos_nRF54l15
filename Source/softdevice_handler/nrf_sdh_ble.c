@@ -9,11 +9,28 @@
 #include <nrf_sdh.h>
 #include <nrf_sdh_ble.h>
 #include <ble.h>
-#include <zephyr/logging/log.h>
+#include <string.h>
 
-#define APP_RAM_START DT_REG_ADDR(DT_CHOSEN(zephyr_sram))
-
-LOG_MODULE_DECLARE(nrf_sdh, CONFIG_NRF_SDH_LOG_LEVEL);
+#define APP_RAM_START 0x20004400
+#define	EFAULT 14	/* Bad address */
+#define CONFIG_NRF_SDH_BLE_CONN_TAG 99
+#define NRF_SDH_BLE_STACK_OBSERVER_PRIO 0
+#define CONFIG_NRF_SDH_BLE_GAP_EVENT_LENGTH 3
+#define CONFIG_SOFTDEVICE_PERIPHERAL 1
+#define CONFIG_NRF_SDH_BLE_GATT_MAX_MTU_SIZE 23
+#define CONFIG_NRF_SDH_BLE_VS_UUID_COUNT 1
+#define CONFIG_NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE 1408
+#define CONFIG_NRF_SDH_BLE_SERVICE_CHANGED 0
+#define CONFIG_NRF_SDH_STR_TABLES 1
+#define CONFIG_NRF_SDH_BLE_PERIPHERAL_LINK_COUNT 1
+#define LOG_WRN
+#define LOG_DBG
+#define LOG_ERR
+#define __ASSERT
+//LOG_MODULE_DECLARE(nrf_sdh, CONFIG_NRF_SDH_LOG_LEVEL);
+// Create section set "sdh_ble_observers".
+#define NRF_SDH_BLE_OBSERVER_PRIO_LEVELS 2
+NRF_SECTION_SET_DEF(sdh_ble_observers, nrf_sdh_ble_evt_observer, NRF_SDH_BLE_OBSERVER_PRIO_LEVELS);
 
 const char *gap_evt_tostr(int evt)
 {
@@ -164,8 +181,8 @@ static int default_cfg_set(void)
 
 	/* Configure Service Changed characteristic. */
 	memset(&ble_cfg, 0x00, sizeof(ble_cfg));
-	ble_cfg.gatts_cfg.service_changed.service_changed =
-		IS_ENABLED(CONFIG_NRF_SDH_BLE_SERVICE_CHANGED);
+	ble_cfg.gatts_cfg.service_changed.service_changed = CONFIG_NRF_SDH_BLE_SERVICE_CHANGED;
+		//IS_ENABLED(CONFIG_NRF_SDH_BLE_SERVICE_CHANGED);
 
 	err = sd_ble_cfg_set(BLE_GATTS_CFG_SERVICE_CHANGED, &ble_cfg, app_ram_start);
 	if (err) {
@@ -176,7 +193,7 @@ static int default_cfg_set(void)
 
 	return 0;
 }
-
+extern  void sdh_state_evt_observer_notify(enum nrf_sdh_state_evt state);
 int nrf_sdh_ble_enable(uint8_t conn_cfg_tag)
 {
 	int err;
@@ -202,9 +219,23 @@ int nrf_sdh_ble_enable(uint8_t conn_cfg_tag)
 
 	LOG_DBG("SoftDevice BLE enabled");
 
-	TYPE_SECTION_FOREACH(struct nrf_sdh_state_evt_observer, nrf_sdh_state_evt_observers, obs) {
-		obs->handler(NRF_SDH_STATE_EVT_BLE_ENABLED, obs->context);
-	}
+	//TYPE_SECTION_FOREACH(struct nrf_sdh_state_evt_observer, nrf_sdh_state_evt_observers, obs) {
+	//	obs->handler(NRF_SDH_STATE_EVT_BLE_ENABLED, obs->context);
+	//}
+       /*  nrf_section_iter_t iter;
+        for (nrf_section_iter_init(&iter, &sdh_state_observers);
+         nrf_section_iter_get(&iter) != NULL;
+         nrf_section_iter_next(&iter))
+        {
+          nrf_sdh_state_evt_observer    * p_observer;
+          nrf_sdh_state_evt_handler_t   handler;
+
+          p_observer = (nrf_sdh_state_evt_observer *) nrf_section_iter_get(&iter);
+          handler    = p_observer->handler;
+
+          handler(NRF_SDH_STATE_EVT_BLE_ENABLED, p_observer->context);
+        }*/
+        sdh_state_evt_observer_notify(NRF_SDH_STATE_EVT_BLE_ENABLED);
 
 	return 0;
 }
@@ -263,7 +294,7 @@ static void ble_evt_poll(void *context)
 {
 	int err;
 
-	__aligned(4) static uint8_t evt_buffer[NRF_SDH_BLE_EVT_BUF_SIZE];
+	__ALIGN(4) static uint8_t evt_buffer[NRF_SDH_BLE_EVT_BUF_SIZE];
 	ble_evt_t * const ble_evt = (ble_evt_t *)evt_buffer;
 
 	while (true) {
@@ -274,7 +305,8 @@ static void ble_evt_poll(void *context)
 			break;
 		}
 
-		if (IS_ENABLED(CONFIG_NRF_SDH_STR_TABLES)) {
+		//if (IS_ENABLED(CONFIG_NRF_SDH_STR_TABLES)) {
+                if ((CONFIG_NRF_SDH_STR_TABLES)) {
 			LOG_DBG("BLE event: %s", gap_evt_tostr(ble_evt->header.evt_id));
 		} else {
 			LOG_DBG("BLE event: %#x", ble_evt->header.evt_id);
@@ -285,11 +317,24 @@ static void ble_evt_poll(void *context)
 			idx_assign(ble_evt->evt.gap_evt.conn_handle);
 		}
 
-		/* Forward the event to BLE observers. */
+		/* Forward the event to BLE observers. 
 		TYPE_SECTION_FOREACH(
 			struct nrf_sdh_ble_evt_observer, nrf_sdh_ble_evt_observers, obs) {
 			obs->handler(ble_evt, obs->context);
-		}
+		}*/
+                nrf_section_iter_t  iter;
+        for (nrf_section_iter_init(&iter, &sdh_ble_observers);
+             nrf_section_iter_get(&iter) != NULL;
+             nrf_section_iter_next(&iter))
+        {
+            nrf_sdh_ble_evt_observer * p_observer;
+            nrf_sdh_ble_evt_handler_t    handler;
+
+            p_observer = (nrf_sdh_ble_evt_observer *)nrf_section_iter_get(&iter);
+            handler    = p_observer->handler;
+
+            handler(ble_evt, p_observer->context);
+        }
 
 		if ((CONFIG_NRF_SDH_BLE_TOTAL_LINK_COUNT > 1) &&
 		    (ble_evt->header.evt_id == BLE_GAP_EVT_DISCONNECTED)) {
@@ -302,4 +347,9 @@ static void ble_evt_poll(void *context)
 }
 
 /* Listen to SoftDevice events */
-NRF_SDH_STACK_EVT_OBSERVER(ble_evt_obs, ble_evt_poll, NULL, 0);
+//NRF_SDH_STACK_EVT_OBSERVER(ble_evt_obs, ble_evt_poll, NULL, 0);
+NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO) =
+{
+    .handler   = ble_evt_poll,
+    .context = NULL,
+};

@@ -113,7 +113,7 @@ static int sdh_state_req_observer_notify(enum nrf_sdh_state_req req)
 	return 0;
 }
 
-static void sdh_state_evt_observer_notify(enum nrf_sdh_state_evt state)
+ void sdh_state_evt_observer_notify(enum nrf_sdh_state_evt state)
 {
         nrf_section_iter_t iter;
         LOG_DBG("State change: %s", state_tostr(state));

@@ -17,12 +17,13 @@
 
 #include <stdint.h>
 #include <ble.h>
-#include <zephyr/sys/iterable_sections.h>
+#include "nrf_section_iter.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#define CONFIG_NRF_SDH_BLE_TOTAL_LINK_COUNT 1
+#define ARG_UNUSED(x) (void)(x)
 /**
  * @brief Size of the buffer for a BLE event.
  */
@@ -36,7 +37,8 @@ typedef void (*nrf_sdh_ble_evt_handler_t)(const ble_evt_t *ble_evt, void *contex
 /**
  * @brief BLE event observer.
  */
-struct nrf_sdh_ble_evt_observer {
+typedef struct  
+{
 	/**
 	 * @brief BLE event handler.
 	 */
@@ -45,23 +47,27 @@ struct nrf_sdh_ble_evt_observer {
 	 * @brief A parameter to the event handler.
 	 */
 	void *context;
-};
+} const nrf_sdh_ble_evt_observer;
 
-/**
- * @brief Register a SoftDevice BLE event observer.
+/**@brief   Macro for registering @ref nrf_sdh_soc_evt_observer_t. Modules that want to be
+ *          notified about SoC events must register the handler using this macro.
  *
- * @param _observer Name of the observer.
- * @param _handler State request handler.
- * @param _ctx A context passed to the state request handler.
- * @param _prio Priority of the observer's event handler.
- *		The lower the number, the higher the priority.
+ * @details This macro places the observer in a section named "sdh_soc_observers".
+ *
+ * @param[in]   _name       Observer name.
+ * @param[in]   _prio       Priority of the observer event handler.
+ *                          The smaller the number, the higher the priority.
+ * @param[in]   _handler    BLE event handler.
+ * @param[in]   _context    Parameter to the event handler.
+ * @hideinitializer
  */
-#define NRF_SDH_BLE_OBSERVER(_observer, _handler, _ctx, _prio)                                     \
-	static const TYPE_SECTION_ITERABLE(struct nrf_sdh_ble_evt_observer, _observer,             \
-					   nrf_sdh_ble_evt_observers, _prio) = {                   \
-		.handler = _handler,                                                               \
-		.context = _ctx,                                                                   \
-	};
+#define NRF_SDH_BLE_OBSERVER(_name, _prio, _handler, _context)                                      \
+NRF_SECTION_SET_ITEM_REGISTER(sdh_ble_observers, _prio, static nrf_sdh_ble_evt_observer _name) =  \
+{                                                                                                   \
+    .handler   = _handler,                                                                          \
+    .p_context = _context                                                                           \
+}
+
 
 /**
  * @brief Retrieve the starting address of the application's RAM.
