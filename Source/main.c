@@ -35,7 +35,7 @@ Purpose : Generic application start
 #define BOARD_APP_UARTE_PIN_CTS NRF_PIN_PORT_TO_PIN_NUMBER(3, 0)
 #include <hal/nrf_gpio.h>
 #include <nrfx_uarte.h>
-
+#include "test_section.h"
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
 #define BOARD_PIN_LED_1 NRF_PIN_PORT_TO_PIN_NUMBER(10, 1)
@@ -155,6 +155,31 @@ static void led_toggle_timer_callback (TimerHandle_t xTimer )
     nrf_gpio_pin_toggle(BOARD_PIN_LED_1);
 }
 StaticTimer_t myTimerBuffer;
+#define section_test 1
+#if section_test
+#define NRF_SDH_REQ_OBSERVER_PRIO_LEVELS 2
+#define NRF_SDH_STATE_OBSERVER_PRIO_LEVELS 2
+#define NRF_SDH_STACK_OBSERVER_PRIO_LEVELS 2
+// Create section "sdh_req_observers".
+NRF_SECTION_SET_DEF(sdh_req_observers, nrf_sdh_req_observer_t, NRF_SDH_REQ_OBSERVER_PRIO_LEVELS);
+
+// Create section "sdh_state_observers".
+NRF_SECTION_SET_DEF(sdh_state_observers, nrf_sdh_state_observer_t, NRF_SDH_STATE_OBSERVER_PRIO_LEVELS);
+
+// Create section "sdh_stack_observers".
+NRF_SECTION_SET_DEF(sdh_stack_observers, nrf_sdh_stack_observer_t, NRF_SDH_STACK_OBSERVER_PRIO_LEVELS);
+
+static void nrf_sdh_ble_evts_poll(void * p_context)
+{
+   nrf_gpio_pin_write(BOARD_PIN_LED_2, 0);
+}
+#define NRF_SDH_BLE_STACK_OBSERVER_PRIO 0
+NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO) =
+{
+    .handler   = nrf_sdh_ble_evts_poll,
+    .p_context = NULL,
+};
+#endif
 int main(void)
 {
     int count = 1;
@@ -207,6 +232,23 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         //rt_pin_write(RT_BSP_LED_PIN, PIN_LOW);
         //rt_thread_mdelay(3000);
     }
+#if section_test
+    nrf_section_iter_t iter;
+
+    // Notify observers about pending SoftDevice event.
+    for (nrf_section_iter_init(&iter, &sdh_stack_observers);
+         nrf_section_iter_get(&iter) != NULL;
+         nrf_section_iter_next(&iter))
+    {
+        nrf_sdh_stack_observer_t    * p_observer;
+        nrf_sdh_stack_evt_handler_t   handler;
+
+        p_observer = (nrf_sdh_stack_observer_t *) nrf_section_iter_get(&iter);
+        handler    = p_observer->handler;
+
+        handler(p_observer->p_context);
+    }
+#endif
 
     xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
 
