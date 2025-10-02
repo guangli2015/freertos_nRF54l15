@@ -48,7 +48,7 @@
       arm_target_device_name="nRF54L15_M33"
       arm_target_interface_type="SWD"
       c_preprocessor_definitions="NRF54L15_XXAA;NRF_APPLICATION"
-      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure;Source/FreeRTOS/include;Source/section_vars;Source/softdevice_handler"
+      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure;Source/FreeRTOS/include;Source/section_vars;Source/softdevice_handler;Source/softdevice/s115/s115_API/include"
       debug_stack_pointer_start="__stack_end__"
       debug_target_connection="J-Link"
       gcc_entry_point="Reset_Handler"
@@ -99,7 +99,7 @@
     </folder>
     <folder Name="softdevice_handler">
       <file file_name="Source/softdevice_handler/nrf_sdh.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/softdevice_handler/nrf_sdh_ble.c">
         <configuration Name="Debug" build_exclude_from_build="Yes" />
