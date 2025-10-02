@@ -65,7 +65,7 @@ typedef struct
 NRF_SECTION_SET_ITEM_REGISTER(sdh_ble_observers, _prio, static nrf_sdh_ble_evt_observer _name) =  \
 {                                                                                                   \
     .handler   = _handler,                                                                          \
-    .p_context = _context                                                                           \
+    .context = _context                                                                           \
 }
 
 
