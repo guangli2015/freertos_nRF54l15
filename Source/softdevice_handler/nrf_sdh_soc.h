@@ -16,7 +16,7 @@
 #define NRF_SDH_SOC_H__
 
 #include <stdint.h>
-#include <zephyr/sys/iterable_sections.h>
+#include "nrf_section_iter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,8 @@ typedef void (*nrf_sdh_soc_evt_handler_t)(uint32_t evt_id, void *context);
 /**
  * @brief SoftDevice SoC event observer.
  */
-struct nrf_sdh_soc_evt_observer {
+typedef struct  
+{
 	/**
 	 * @brief SoC event handler.
 	 */
@@ -39,23 +40,26 @@ struct nrf_sdh_soc_evt_observer {
 	 * @brief A parameter to the event handler.
 	 */
 	void *context;
-};
+} const nrf_sdh_soc_evt_observer;
 
-/**
- * @brief Register a SoftDevice SoC event observer.
+/**@brief   Macro for registering @ref nrf_sdh_soc_evt_observer. Modules that want to be
+ *          notified about SoC events must register the handler using this macro.
  *
- * @param _observer Name of the observer.
- * @param _handler State request handler.
- * @param _ctx A context passed to the state request handler.
- * @param _prio Priority of the observer's event handler.
- *		The lower the number, the higher the priority.
+ * @details This macro places the observer in a section named "sdh_soc_observers".
+ *
+ * @param[in]   _name       Observer name.
+ * @param[in]   _prio       Priority of the observer event handler.
+ *                          The smaller the number, the higher the priority.
+ * @param[in]   _handler    SoC event handler.
+ * @param[in]   _context    Parameter to the event handler.
+ * @hideinitializer
  */
-#define NRF_SDH_SOC_OBSERVER(_observer, _handler, _ctx, _prio)                                     \
-	const TYPE_SECTION_ITERABLE(struct nrf_sdh_soc_evt_observer, _observer,                    \
-				    nrf_sdh_soc_evt_observers, _prio) = {                          \
-		.handler = _handler,                                                               \
-		.context = _ctx,                                                                   \
-	};
+#define NRF_SDH_SOC_OBSERVER(_name, _prio, _handler, _context)                                      \
+NRF_SECTION_SET_ITEM_REGISTER(sdh_soc_observers, _prio, static nrf_sdh_soc_evt_observer _name) =  \
+{                                                                                                   \
+    .handler   = _handler,                                                                          \
+    .context = _context                                                                           \
+}
 
 #ifdef __cplusplus
 }

@@ -9,11 +9,16 @@
 #include <nrf_sdh.h>
 #include <nrf_sdh_soc.h>
 #include <nrf_soc.h>
-#include <psa/crypto.h>
-#include <zephyr/logging/log.h>
 
-LOG_MODULE_DECLARE(nrf_sdh, CONFIG_NRF_SDH_LOG_LEVEL);
 
+#define CONFIG_NRF_SDH_STR_TABLES 1
+#define NRF_SDH_SOC_STACK_OBSERVER_PRIO 0
+#define LOG_DBG
+#define __ASSERT
+//LOG_MODULE_DECLARE(nrf_sdh, CONFIG_NRF_SDH_LOG_LEVEL);
+// Create section set "sdh_soc_observers".
+#define NRF_SDH_SOC_OBSERVER_PRIO_LEVELS 2
+NRF_SECTION_SET_DEF(sdh_soc_observers, nrf_sdh_soc_evt_observer, NRF_SDH_SOC_OBSERVER_PRIO_LEVELS);
 static const char *tostr(uint32_t evt)
 {
 	switch (evt) {
@@ -44,6 +49,7 @@ static const char *tostr(uint32_t evt)
 
 static void softdevice_rng_seed(void)
 {
+#if 0
 	uint32_t err = NRF_ERROR_INVALID_DATA;
 	psa_status_t status;
 	uint8_t seed[SD_RAND_SEED_SIZE];
@@ -61,6 +67,7 @@ static void softdevice_rng_seed(void)
 	}
 
 	LOG_ERR("Failed to seed SoftDevice RNG, nrf_error %#x", err);
+#endif
 }
 
 static void soc_evt_poll(void *context)
@@ -74,7 +81,7 @@ static void soc_evt_poll(void *context)
 			break;
 		}
 
-		if (IS_ENABLED(CONFIG_NRF_SDH_STR_TABLES)) {
+		if ((CONFIG_NRF_SDH_STR_TABLES)) {
 			LOG_DBG("SoC event: %s", tostr(evt_id));
 		} else {
 			LOG_DBG("SoC event: 0x%x", evt_id);
@@ -84,11 +91,26 @@ static void soc_evt_poll(void *context)
 			softdevice_rng_seed();
 		}
 
-		/* Forward the event to SoC observers. */
+		/* Forward the event to SoC observers. 
 		TYPE_SECTION_FOREACH(
 			struct nrf_sdh_soc_evt_observer, nrf_sdh_soc_evt_observers, obs) {
 			obs->handler(evt_id, obs->context);
-		}
+		}*/
+
+                        // Forward the event to SoC observers.
+                nrf_section_iter_t  iter;
+                for (nrf_section_iter_init(&iter, &sdh_soc_observers);
+                     nrf_section_iter_get(&iter) != NULL;
+                     nrf_section_iter_next(&iter))
+                {
+                    nrf_sdh_soc_evt_observer * p_observer;
+                    nrf_sdh_soc_evt_handler_t    handler;
+
+                    p_observer = (nrf_sdh_soc_evt_observer *) nrf_section_iter_get(&iter);
+                    handler    = p_observer->handler;
+
+                    handler(evt_id, p_observer->context);
+                }
 	}
 
 	__ASSERT(err == NRF_ERROR_NOT_FOUND,
@@ -96,4 +118,9 @@ static void soc_evt_poll(void *context)
 }
 
 /* Listen to SoftDevice events */
-NRF_SDH_STACK_EVT_OBSERVER(soc_evt_obs, soc_evt_poll, NULL, 0);
+//NRF_SDH_STACK_EVT_OBSERVER(soc_evt_obs, soc_evt_poll, NULL, 0);
+NRF_SDH_STACK_OBSERVER(m_nrf_sdh_soc_evts_poll, NRF_SDH_SOC_STACK_OBSERVER_PRIO) =
+{
+    .handler   = soc_evt_poll,
+    .context = NULL,
+};
