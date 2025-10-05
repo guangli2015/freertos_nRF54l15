@@ -3,37 +3,9 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
-#include <zephyr/init.h>
-#include <zephyr/kernel.h>
-#include <zephyr/irq.h>
-#include <zephyr/storage/flash_map.h>
-
-#if CONFIG_SOC_SERIES_NRF52X
-#include <zephyr/linker/linker-defs.h>
-#include <nrf_sdm.h>
-#include <nrfx_gpiote.h>
-
-void relocate_vector_table(void)
-{
-	/* Empty, but needed */
-}
-
-static int irq_init(void)
-{
-	int err;
-
-	#define VECTOR_ADDRESS ((uintptr_t)_vector_start)
-
-	err = sd_softdevice_vector_table_base_set(VECTOR_ADDRESS);
-	__ASSERT(err == NRF_SUCCESS, "Failed to set the vector table, nrf_error %#x", err);
-
-	return (err == NRF_SUCCESS) ? 0 : -EIO;
-}
-
-#elif CONFIG_SOC_SERIES_NRF54LX
+#include <stdint.h>
 #include "irq_connect.h"
-
+#include <nrf_sdm.h>
 extern void CLOCK_POWER_IRQHandler(void);
 extern void RADIO_0_IRQHandler(void);
 extern void TIMER10_IRQHandler(void);
@@ -51,7 +23,7 @@ uint32_t softdevice_vector_forward_address;
 
 static void sd_enable_irq_forwarding(void)
 {
-	softdevice_vector_forward_address = FIXED_PARTITION_OFFSET(softdevice_partition);
+	softdevice_vector_forward_address = 0x00162000;
 #ifdef CONFIG_BOOTLOADER_MCUBOOT
 	softdevice_vector_forward_address += CONFIG_ROM_START_OFFSET;
 #endif
@@ -64,7 +36,7 @@ static int irq_init(void)
 {
 #define PRIO_HIGH 0	/* SoftDevice high priority interrupt */
 #define PRIO_LOW 4	/* SoftDevice low priority interrupt */
-
+#if 0
 	/* IRQ_ZERO_LATENCY with CONFIG_ZERO_LATENCY_LEVELS equal to 1 (default) forces the priority
 	 * level to 0, ignoring the specified priority.
 	 * On `sd_softdevice_enable()`, the SoftDevice will override the necessary interrupts it
@@ -79,6 +51,29 @@ static int irq_init(void)
 	IRQ_DIRECT_CONNECT(CLOCK_POWER_IRQn, PRIO_LOW, CLOCK_POWER_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(ECB00_IRQn, PRIO_LOW, ECB00_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(SWI00_IRQn, PRIO_LOW, SWI00_IRQHandler, 0);
+#endif       
+    NVIC_SetPriority(RADIO_0_IRQn, 0);       // 等效于 PRIO_HIGH + IRQ_ZERO_LATENCY
+    NVIC_EnableIRQ(RADIO_0_IRQn);
+
+    NVIC_SetPriority(TIMER10_IRQn, 0);
+    NVIC_EnableIRQ(TIMER10_IRQn);
+
+    NVIC_SetPriority(GRTC_3_IRQn, 0);
+    NVIC_EnableIRQ(GRTC_3_IRQn);
+
+
+    NVIC_SetPriority(AAR00_CCM00_IRQn, 4);   // 等效于 PRIO_LOW
+    NVIC_EnableIRQ(AAR00_CCM00_IRQn);
+
+    NVIC_SetPriority(CLOCK_POWER_IRQn, 4);
+    NVIC_EnableIRQ(CLOCK_POWER_IRQn);
+
+    NVIC_SetPriority(ECB00_IRQn, 4);
+    NVIC_EnableIRQ(ECB00_IRQn);
+
+    NVIC_SetPriority(SWI00_IRQn, 4);
+    NVIC_EnableIRQ(SWI00_IRQn);
+  
 
 	NVIC_SetPriority(SVCall_IRQn, PRIO_LOW);
 
@@ -132,6 +127,6 @@ __attribute__((weak)) void C_POWER_CLOCK_Handler(void)
 	__asm__("SVC 255");
 }
 
-#endif
 
-SYS_INIT(irq_init, PRE_KERNEL_1, 0);
+
+//SYS_INIT(irq_init, PRE_KERNEL_1, 0);

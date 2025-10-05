@@ -69,6 +69,7 @@
       LIBRARY_IO_TYPE="SEMIHOST (host-formatted)"
       Name="Release_MinSize" />
     <folder Name="freeRTOS">
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
       <folder Name="portable">
         <folder Name="common">
           <file file_name="Source/FreeRTOS/portable/Common/mpu_wrappers.c" />
@@ -98,6 +99,8 @@
       <file file_name="Setup/nrf54l15_xxaa_application.ld" />
     </folder>
     <folder Name="softdevice_handler">
+      <file file_name="Source/softdevice_handler/irq_connect.c" />
+      <file file_name="Source/softdevice_handler/irq_forward.s" />
       <file file_name="Source/softdevice_handler/nrf_sdh.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
@@ -118,7 +121,9 @@
       <file file_name="Source/nrfx/soc/nrfx_atomic.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
-      <file file_name="Source/nrfx/drivers/src/nrfx_clock.c" />
+      <file file_name="Source/nrfx/drivers/src/nrfx_clock.c">
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
+      </file>
       <file file_name="Source/nrfx/helpers/nrfx_flag32_allocator.c" />
       <file file_name="Source/nrfx_glue.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_grtc.c" />

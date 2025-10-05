@@ -155,7 +155,7 @@ static void led_toggle_timer_callback (TimerHandle_t xTimer )
     nrf_gpio_pin_toggle(BOARD_PIN_LED_1);
 }
 StaticTimer_t myTimerBuffer;
-#define section_test 1
+#define section_test 0
 #if section_test
 #define NRF_SDH_REQ_OBSERVER_PRIO_LEVELS 2
 #define NRF_SDH_STATE_OBSERVER_PRIO_LEVELS 2
@@ -249,7 +249,7 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         handler(p_observer->p_context);
     }
 #endif
-
+#if 0
     xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
 
         /* Start timer for LED1 blinking */
@@ -264,6 +264,7 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         /* FreeRTOS should not be here... FreeRTOS goes back to the start of stack
          * in vTaskStartScheduler function. */
     }
+#endif
     return 0;
 }
 

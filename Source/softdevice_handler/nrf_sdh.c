@@ -348,7 +348,7 @@ void SD_EVT_IRQHandler(void)
 #elif defined(CONFIG_NRF_SDH_DISPATCH_MODEL_POLL)
 
 #endif /* NRF_SDH_DISPATCH_MODEL */
-
+#if 0
 static void isr_handler(const void *arg)
 {
 	//ARG_UNUSED(arg);
@@ -362,5 +362,5 @@ static int sd_irq_init(void)
 
 	return 0;
 }
-
+#endif
 //SYS_INIT(sd_irq_init, POST_KERNEL, 0);
