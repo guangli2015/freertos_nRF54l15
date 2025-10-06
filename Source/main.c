@@ -185,7 +185,7 @@ int main(void)
     int count = 1;
 int err;
 
-#if 0
+#if 1
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,
 								     BOARD_APP_UARTE_PIN_RX);
     uarte_config.config.hwfc = NRF_UARTE_HWFC_ENABLED;
