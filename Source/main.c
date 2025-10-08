@@ -23,7 +23,6 @@ Purpose : Generic application start
 
 
 #define NRFX_UARTE22_ENABLED 1*/
-
 #define BOARD_APP_UARTE_PIN_TX NRF_PIN_PORT_TO_PIN_NUMBER(0, 0)
 
 
@@ -33,9 +32,13 @@ Purpose : Generic application start
 
 
 #define BOARD_APP_UARTE_PIN_CTS NRF_PIN_PORT_TO_PIN_NUMBER(3, 0)
+
 #include <hal/nrf_gpio.h>
 #include <nrfx_uarte.h>
 #include "test_section.h"
+#include <stdio.h>
+#include <string.h>
+#include  "log.h"
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
 #define BOARD_PIN_LED_1 NRF_PIN_PORT_TO_PIN_NUMBER(10, 1)
@@ -53,17 +56,25 @@ Purpose : Generic application start
 #define BOARD_PIN_LED_3 NRF_PIN_PORT_TO_PIN_NUMBER(14, 1)
 #endif
 
+
+
+
 /* Stack overflow hook. */
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
 {
     /* Force an assert. */
     configASSERT( pcTaskName == 0 );
 }
-#if 1
+#if 0
 static const nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(30);
 /* Receive buffer used in UARTE ISR callback */
 static uint8_t uarte_rx_buf[4];
 static int buf_idx;
+int _write(int file, char *ptr, int len) {
+    // 直接使用 nrfx_uarte_tx 发送
+     nrfx_uarte_tx(&uarte_inst, (uint8_t *)ptr, len, NRFX_UARTE_TX_BLOCKING);
+    return len;
+}
 
 /* Handle data received from UARTE. */
 static void uarte_rx_handler(char *data, size_t data_len)
@@ -180,12 +191,18 @@ NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO)
     .p_context = NULL,
 };
 #endif
+
 int main(void)
 {
     int count = 1;
 int err;
-
-#if 1
+err = log_init();
+if (err != NRFX_SUCCESS) {
+		
+        	return -1;
+	}
+   LOG_INF("Hello freeRTOS 54l %d\n",15);
+#if 0
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,
 								     BOARD_APP_UARTE_PIN_RX);
     uarte_config.config.hwfc = NRF_UARTE_HWFC_ENABLED;
@@ -199,12 +216,7 @@ int err;
 
 	const uint8_t out[] = "Hello world! I will echo the lines you enter:\r\n";
 
-	err = nrfx_uarte_tx(&uarte_inst, out, sizeof(out), NRFX_UARTE_TX_BLOCKING);
-	if (err != NRFX_SUCCESS) {
-		//printk("UARTE TX failed, nrfx err %d\n", err);
-		return -1;
-	}
-
+        //printf("hello word\n");
     /* Start reception */
 	err = nrfx_uarte_rx_enable(&(uarte_inst), 0);
 	if (err != NRFX_SUCCESS) {

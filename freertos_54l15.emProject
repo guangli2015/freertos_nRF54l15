@@ -61,6 +61,7 @@
       project_directory=""
       project_type="Executable" />
     <configuration
+      LIBRARY_IO_TYPE="RTT"
       Name="Debug"
       c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include"
       link_linker_script_file="Setup/nrf54l15_xxaa_application.ld"
@@ -117,6 +118,9 @@
     <folder Name="Source">
       <configuration Name="Debug" build_exclude_from_build="No" />
       <file file_name="Source/nrfx/mdk/gcc_startup_nrf54l15_application.S" />
+      <file file_name="Source/log.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
       <file file_name="Source/main.c" />
       <file file_name="Source/nrfx/soc/nrfx_atomic.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
@@ -128,6 +132,9 @@
       <file file_name="Source/nrfx_glue.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_grtc.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_uarte.c" />
+      <file file_name="Source/softdevice_test.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
       <file file_name="Source/nrfx/mdk/system_nrf54l.c" />
     </folder>
   </project>
