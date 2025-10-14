@@ -189,7 +189,7 @@ static int default_cfg_set(void)
 		LOG_INF("Failed to set BLE_GATTS_CFG_SERVICE_CHANGED, nrf_error %#x\n", err);
 	}
 
-	LOG_INF("SoftDevice configuration applied\n");
+	LOG_INF("SoftDevice configuration applied\r\n");
 
 	return 0;
 }
@@ -200,7 +200,7 @@ int nrf_sdh_ble_enable(uint8_t conn_cfg_tag)
 	uint32_t app_ram_minimum = APP_RAM_START;
 	uint32_t const app_ram_start_link = APP_RAM_START;
 
-	//default_cfg_set();
+	default_cfg_set();
 
 	LOG_INF("Application RAM starts at 0x%x\r\n", app_ram_start_link);
         //LOG_INF("app_ram_minimum 0x%x\n", app_ram_minimum);
