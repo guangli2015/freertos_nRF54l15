@@ -32,7 +32,7 @@
  */
 
 #include <nrfx.h>
-#define NRFX_GRTC_ENABLED 1
+//#define NRFX_GRTC_ENABLED 1
 #if NRFX_CHECK(NRFX_GRTC_ENABLED)
 
 #include <nrfx_grtc.h>

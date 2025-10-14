@@ -39,6 +39,10 @@ Purpose : Generic application start
 #include <stdio.h>
 #include <string.h>
 #include  "log.h"
+#include "irq_connect.h"
+
+#include <nrfx_grtc.h>
+#include <nrfx_clock.h>
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
 #define BOARD_PIN_LED_1 NRF_PIN_PORT_TO_PIN_NUMBER(10, 1)
@@ -57,7 +61,7 @@ Purpose : Generic application start
 #endif
 
 
-
+void SysTick_Configuration(void);
 
 /* Stack overflow hook. */
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
@@ -191,17 +195,45 @@ NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO)
     .p_context = NULL,
 };
 #endif
+extern int sftdevice_test(void);
+extern int softdevice_irq_init(void);
+extern  int sdh_irq_init(void);
+
+
+
+extern uint32_t __StackTop;
+extern uint32_t __StackLimit;
+
+
+
+
+void fill_stack_pattern(void) {
+//uint32_t *stack_top = (uint32_t *)__StackTop;
+//uint32_t *stack_limit = (uint32_t *)__StackLimit;
+
+LOG_INF("__StackTop  = 0x%x", (uint32_t)__StackTop);
+LOG_INF("__StackLimit = 0x%x", (uint32_t)__StackLimit);
+
+    uint32_t *p = &__StackLimit;
+    while (p <= &__StackTop) {
+        *p++ = 0xDEADBEEF;
+    }
+}
 
 int main(void)
 {
     int count = 1;
 int err;
+SysTick_Configuration();
+softdevice_irq_init();
+//sdh_irq_init();
 err = log_init();
 if (err != NRFX_SUCCESS) {
 		
         	return -1;
 	}
-   LOG_INF("Hello freeRTOS 54l %d\n",15);
+   LOG_INF("Hello world of 54l %d\r\n",15);
+ //  fill_stack_pattern();
 #if 0
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,
 								     BOARD_APP_UARTE_PIN_RX);
@@ -277,6 +309,9 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
          * in vTaskStartScheduler function. */
     }
 #endif
+
+
+ sftdevice_test();
     return 0;
 }
 
@@ -335,5 +370,114 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
      * Note that, as the array is necessarily of type StackType_t,
      * configTIMER_TASK_STACK_DEPTH is specified in words, not bytes. */
     *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+}
+
+
+/*--------------------add GRTC driver for systick by Andrew------------------------------*/
+#define SYS_CLOCK_HW_CYCLES_PER_SEC 1000000
+#define SYS_CLOCK_TICKS_PER_SEC 1000
+#define CYC_PER_TICK                                                                               \
+	((uint64_t)SYS_CLOCK_HW_CYCLES_PER_SEC / (uint64_t)SYS_CLOCK_TICKS_PER_SEC)
+static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_context);
+static nrfx_grtc_channel_t system_clock_channel_data = {
+	.handler = sys_clock_timeout_handler,
+	.p_context = NULL,
+	.channel = (uint8_t)-1,
+};
+static uint64_t last_count; /* Time (SYSCOUNTER value) @last sys_clock_announce() */
+static inline uint64_t counter(void)
+{
+	uint64_t now;
+	nrfx_grtc_syscounter_get(&now);
+	return now;
+}
+static inline uint64_t counter_sub(uint64_t a, uint64_t b)
+{
+	return (a - b);
+}
+/*
+ * Program a new callback in the absolute time given by <value>
+ */
+static void system_timeout_set_abs(uint64_t value)
+{
+	nrfx_grtc_syscounter_cc_absolute_set(&system_clock_channel_data, value,
+					     true);
+}
+static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_context)
+{
+	//ARG_UNUSED(id);
+	//ARG_UNUSED(p_context);
+	uint64_t dticks;
+	uint64_t now = counter();
+
+	//if (unlikely(now < cc_val)) {
+	//	return;
+	//}
+
+	dticks = counter_sub(cc_val, last_count) / CYC_PER_TICK;
+
+	last_count += dticks * CYC_PER_TICK;
+
+
+	system_timeout_set_abs(last_count + CYC_PER_TICK);
+
+    //    uint32_t ulPreviousMask;
+
+    //ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
+    //traceISR_ENTER();
+    //{
+    //    /* Increment the RTOS tick. */
+    //    if( xTaskIncrementTick() != pdFALSE )
+    //    {
+    //        traceISR_EXIT_TO_SCHEDULER();
+    //        /* Pend a context switch. */
+    //        portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;
+    //    }
+    //    else
+    //    {
+    //        traceISR_EXIT();
+    //    }
+    //}
+    //portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+}
+
+static void clk_event_handler(nrfx_clock_evt_type_t event){}
+static void system_timeout_set_relative(uint64_t value)
+{
+	if (value <= NRF_GRTC_SYSCOUNTER_CCADD_MASK) {
+		nrfx_grtc_syscounter_cc_relative_set(&system_clock_channel_data, value, true,
+						     NRFX_GRTC_CC_RELATIVE_SYSCOUNTER);
+	} else {
+		nrfx_grtc_syscounter_cc_absolute_set(&system_clock_channel_data, value + counter(),
+						     true);
+	}
+}
+static int sys_clock_driver_init(void)
+{
+  nrfx_err_t err_code;
+
+  nrfx_grtc_clock_source_set(NRF_GRTC_CLKSEL_LFXO);
+
+  err_code = nrfx_grtc_init(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+  if (err_code != NRFX_SUCCESS) {
+		return -1;
+  }
+
+
+  err_code = nrfx_grtc_syscounter_start(true, &system_clock_channel_data.channel);
+  if (err_code != NRFX_SUCCESS) {
+		return -1;
+  }
+	
+  system_timeout_set_relative(CYC_PER_TICK);
+  return 0;
+
+}
+void SysTick_Configuration(void)
+{
+  //nrfx_clock_init(clk_event_handler);	
+ // nrfx_clock_enable();
+  sys_clock_driver_init();
+ // nrfx_clock_lfclk_start();
 }
 /*************************** End of file ****************************/

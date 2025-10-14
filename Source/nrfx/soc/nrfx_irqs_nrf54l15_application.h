@@ -234,8 +234,8 @@ extern "C" {
 #define nrfx_gpiote_30_irq_handler      GPIOTE30_IRQHandler
 
 // CLOCK_POWER_IRQHandler
-#define nrfx_power_clock_irq_handler    CLOCK_POWER_IRQHandler
-
+//#define nrfx_power_clock_irq_handler    CLOCK_POWER_IRQHandler
+#define nrfx_power_clock_irq_handler    C_POWER_CLOCK_Handler
 #ifdef __cplusplus
 }
 #endif

@@ -3,13 +3,13 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
+#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <nrf_sdh.h>
 #include <nrf_sdh_soc.h>
 #include <nrf_soc.h>
-
+#include "log.h"
 
 #define CONFIG_NRF_SDH_STR_TABLES 1
 #define NRF_SDH_SOC_STACK_OBSERVER_PRIO 0
@@ -46,27 +46,32 @@ static const char *tostr(uint32_t evt)
 		return "Unknown";
 	}
 }
-
+static uint8_t se=6;
 static void softdevice_rng_seed(void)
 {
-#if 0
+#if 1
 	uint32_t err = NRF_ERROR_INVALID_DATA;
-	psa_status_t status;
+	//psa_status_t status;
 	uint8_t seed[SD_RAND_SEED_SIZE];
-
-	status = psa_generate_random(seed, sizeof(seed));
-	if (status == PSA_SUCCESS) {
+        memset(seed, 0, sizeof(seed));
+        for(int i=0;i<SD_RAND_SEED_SIZE;i++)
+        {
+          seed[i] = (uint8_t)(0xA5 ^ i);  // 或者用硬件 RNG
+        }
+	//status = psa_generate_random(seed, sizeof(seed));
+	//if (status == PSA_SUCCESS) {
 		err = sd_rand_seed_set(seed);
-		memset(seed, 0, sizeof(seed));
+                //err = NRF_SUCCESS;
+		//memset(seed, 0, sizeof(seed));
 		if (err == NRF_SUCCESS) {
-			LOG_DBG("SoftDevice RNG seeded");
+			LOG_INF("SoftDevice RNG seeded\r\n");
 			return;
 		}
-	} else {
-		LOG_ERR("Generate random failed, psa status %d", status);
-	}
+	//} else {
+	//	LOG_ERR("Generate random failed, psa status %d", status);
+	//}
 
-	LOG_ERR("Failed to seed SoftDevice RNG, nrf_error %#x", err);
+	LOG_INF("Failed to seed SoftDevice RNG, nrf_error %#x\r\n", err);
 #endif
 }
 
@@ -82,9 +87,9 @@ static void soc_evt_poll(void *context)
 		}
 
 		if ((CONFIG_NRF_SDH_STR_TABLES)) {
-			LOG_DBG("SoC event: %s", tostr(evt_id));
+			LOG_INF("SoC event: %s\r\n", tostr(evt_id));
 		} else {
-			LOG_DBG("SoC event: 0x%x", evt_id);
+			LOG_INF("SoC event: 0x%x", evt_id);
 		}
 
 		if (evt_id == NRF_EVT_RAND_SEED_REQUEST) {

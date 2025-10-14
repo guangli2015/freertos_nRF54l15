@@ -32,7 +32,7 @@ static void sd_enable_irq_forwarding(void)
 	irq_forwarding_enabled_magic_number_holder = IRQ_FORWARDING_ENABLED_MAGIC_NUMBER;
 }
 
-static int irq_init(void)
+int softdevice_irq_init(void)
 {
 #define PRIO_HIGH 0	/* SoftDevice high priority interrupt */
 #define PRIO_LOW 4	/* SoftDevice low priority interrupt */
@@ -51,32 +51,33 @@ static int irq_init(void)
 	IRQ_DIRECT_CONNECT(CLOCK_POWER_IRQn, PRIO_LOW, CLOCK_POWER_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(ECB00_IRQn, PRIO_LOW, ECB00_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(SWI00_IRQn, PRIO_LOW, SWI00_IRQHandler, 0);
-#endif       
+#endif  
+#if 1
     NVIC_SetPriority(RADIO_0_IRQn, 0);       // 等效于 PRIO_HIGH + IRQ_ZERO_LATENCY
-    NVIC_EnableIRQ(RADIO_0_IRQn);
+    //NVIC_EnableIRQ(RADIO_0_IRQn);
 
     NVIC_SetPriority(TIMER10_IRQn, 0);
-    NVIC_EnableIRQ(TIMER10_IRQn);
+    //NVIC_EnableIRQ(TIMER10_IRQn);
 
     NVIC_SetPriority(GRTC_3_IRQn, 0);
-    NVIC_EnableIRQ(GRTC_3_IRQn);
+    //NVIC_EnableIRQ(GRTC_3_IRQn);
 
 
     NVIC_SetPriority(AAR00_CCM00_IRQn, 4);   // 等效于 PRIO_LOW
-    NVIC_EnableIRQ(AAR00_CCM00_IRQn);
+    //NVIC_EnableIRQ(AAR00_CCM00_IRQn);
 
     NVIC_SetPriority(CLOCK_POWER_IRQn, 4);
-    NVIC_EnableIRQ(CLOCK_POWER_IRQn);
+    //NVIC_EnableIRQ(CLOCK_POWER_IRQn);
 
     NVIC_SetPriority(ECB00_IRQn, 4);
-    NVIC_EnableIRQ(ECB00_IRQn);
+    //NVIC_EnableIRQ(ECB00_IRQn);
 
     NVIC_SetPriority(SWI00_IRQn, 4);
-    NVIC_EnableIRQ(SWI00_IRQn);
+    //NVIC_EnableIRQ(SWI00_IRQn);
   
 
 	NVIC_SetPriority(SVCall_IRQn, PRIO_LOW);
-
+#endif
 	sd_enable_irq_forwarding();
 
 	return 0;

@@ -5,9 +5,8 @@ GROUP(-lgcc -lc) */
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x17D000 /* Inside global RRAM0 */
-  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20000
-  RAM1 (rwx) : ORIGIN = 0x20020000, LENGTH = 0x20000
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x160000 /* Inside global RRAM0 */
+  RAM (rwx) : ORIGIN = 0x20004400, LENGTH = 0x3B800
 }
 
 
@@ -455,7 +454,7 @@ SECTIONS
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __stack_end = ORIGIN(RAM) + LENGTH(RAM);
-
+__stack_end__ = ORIGIN(RAM) + LENGTH(RAM);
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);

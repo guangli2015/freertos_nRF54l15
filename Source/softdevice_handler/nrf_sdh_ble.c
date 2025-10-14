@@ -10,7 +10,7 @@
 #include <nrf_sdh_ble.h>
 #include <ble.h>
 #include <string.h>
-
+#include "log.h"
 #define APP_RAM_START 0x20004400
 #define	EFAULT 14	/* Bad address */
 #define CONFIG_NRF_SDH_BLE_CONN_TAG 99
@@ -125,7 +125,7 @@ static int default_cfg_set(void)
 
 	err = sd_ble_cfg_set(BLE_CONN_CFG_GAP, &ble_cfg, app_ram_start);
 	if (err) {
-		LOG_WRN("Failed to set BLE_CONN_CFG_GAP, nrf_error %#x", err);
+		LOG_INF("Failed to set BLE_CONN_CFG_GAP, nrf_error %#x\n", err);
 	}
 
 	/* Configure the connection roles. */
@@ -146,7 +146,7 @@ static int default_cfg_set(void)
 
 	err = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT, &ble_cfg, app_ram_start);
 	if (err) {
-		LOG_WRN("Failed to set BLE_GAP_CFG_ROLE_COUNT, nrf_error %#x", err);
+		LOG_INF("Failed to set BLE_GAP_CFG_ROLE_COUNT, nrf_error %#x\n", err);
 	}
 
 	/* Configure the maximum ATT MTU. */
@@ -167,7 +167,7 @@ static int default_cfg_set(void)
 
 	err = sd_ble_cfg_set(BLE_COMMON_CFG_VS_UUID, &ble_cfg, app_ram_start);
 	if (err) {
-		LOG_WRN("Failed to set BLE_COMMON_CFG_VS_UUID, nrf_error %#x", err);
+		LOG_INF("Failed to set BLE_COMMON_CFG_VS_UUID, nrf_error %#x\n", err);
 	}
 
 	/* Configure the GATTS attribute table. */
@@ -176,7 +176,7 @@ static int default_cfg_set(void)
 
 	err = sd_ble_cfg_set(BLE_GATTS_CFG_ATTR_TAB_SIZE, &ble_cfg, app_ram_start);
 	if (err) {
-		LOG_WRN("Failed to set BLE_GATTS_CFG_ATTR_TAB_SIZE, nrf_error %#x", err);
+		LOG_INF("Failed to set BLE_GATTS_CFG_ATTR_TAB_SIZE, nrf_error %#x\n", err);
 	}
 
 	/* Configure Service Changed characteristic. */
@@ -186,10 +186,10 @@ static int default_cfg_set(void)
 
 	err = sd_ble_cfg_set(BLE_GATTS_CFG_SERVICE_CHANGED, &ble_cfg, app_ram_start);
 	if (err) {
-		LOG_WRN("Failed to set BLE_GATTS_CFG_SERVICE_CHANGED, nrf_error %#x", err);
+		LOG_INF("Failed to set BLE_GATTS_CFG_SERVICE_CHANGED, nrf_error %#x\n", err);
 	}
 
-	LOG_DBG("SoftDevice configuration applied");
+	LOG_INF("SoftDevice configuration applied\n");
 
 	return 0;
 }
@@ -200,24 +200,24 @@ int nrf_sdh_ble_enable(uint8_t conn_cfg_tag)
 	uint32_t app_ram_minimum = APP_RAM_START;
 	uint32_t const app_ram_start_link = APP_RAM_START;
 
-	default_cfg_set();
+	//default_cfg_set();
 
-	LOG_DBG("Application RAM starts at 0x%x", app_ram_start_link);
-
+	LOG_INF("Application RAM starts at 0x%x\r\n", app_ram_start_link);
+        //LOG_INF("app_ram_minimum 0x%x\n", app_ram_minimum);
 	err = sd_ble_enable(&app_ram_minimum);
 	if (app_ram_minimum > app_ram_start_link) {
-		LOG_ERR("Insufficient RAM allocated for the SoftDevice (have %#x, need %#x)",
+		LOG_INF("Insufficient RAM allocated for the SoftDevice (have %#x, need %#x)\r\n",
 			app_ram_start_link, app_ram_minimum);
 	} else if (app_ram_minimum != app_ram_start_link) {
-		LOG_DBG("Application RAM start location can be adjusted to %#x", app_ram_minimum);
+		LOG_INF("Application RAM start location can be adjusted to %#x\r\n", app_ram_minimum);
 	}
 
 	if (err) {
-		LOG_ERR("Failed to enable BLE, nrf_error %#x", err);
+		LOG_INF("Failed to enable BLE, nrf_error %#x\r\n", err);
 		return err;
 	}
 
-	LOG_DBG("SoftDevice BLE enabled");
+	LOG_INF("SoftDevice BLE enabled\r\n");
 
 	//TYPE_SECTION_FOREACH(struct nrf_sdh_state_evt_observer, nrf_sdh_state_evt_observers, obs) {
 	//	obs->handler(NRF_SDH_STATE_EVT_BLE_ENABLED, obs->context);
@@ -293,7 +293,7 @@ static void idx_unassign(uint16_t conn_handle)
 static void ble_evt_poll(void *context)
 {
 	int err;
-
+LOG_INF("ble_evt_poll\r\n");
 	__ALIGN(4) static uint8_t evt_buffer[NRF_SDH_BLE_EVT_BUF_SIZE];
 	ble_evt_t * const ble_evt = (ble_evt_t *)evt_buffer;
 
@@ -302,14 +302,15 @@ static void ble_evt_poll(void *context)
 
 		err = sd_ble_evt_get(evt_buffer, &evt_len);
 		if (err) {
+                LOG_INF("ble evt not found\r\n");
 			break;
 		}
-
+LOG_INF("ble evt found\r\n");
 		//if (IS_ENABLED(CONFIG_NRF_SDH_STR_TABLES)) {
                 if ((CONFIG_NRF_SDH_STR_TABLES)) {
-			LOG_DBG("BLE event: %s", gap_evt_tostr(ble_evt->header.evt_id));
+			LOG_INF("BLE event: %s\r\n", gap_evt_tostr(ble_evt->header.evt_id));
 		} else {
-			LOG_DBG("BLE event: %#x", ble_evt->header.evt_id);
+			LOG_INF("BLE event: %#x", ble_evt->header.evt_id);
 		}
 
 		if ((CONFIG_NRF_SDH_BLE_TOTAL_LINK_COUNT > 1) &&

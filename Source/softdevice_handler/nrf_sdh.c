@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <nrf_sdh.h>
 #include <nrf_sdm.h>
-
+#include "log.h"
 
 
 #define CONFIG_NRF_SDH_CLOCK_LF_SRC NRF_CLOCK_LF_SRC_XTAL
@@ -86,7 +86,7 @@ static int sdh_state_req_observer_notify(enum nrf_sdh_state_req req)
 		LOG_INF("State change request: %#x", req);
 	}*/
         nrf_section_iter_t iter;
-        LOG_DBG("State change request: %s", req_tostr(req));
+        LOG_INF("State change request: %s\r\n", req_tostr(req));
 
         for (nrf_section_iter_init(&iter, &sdh_req_observers);
          nrf_section_iter_get(&iter) != NULL;
@@ -100,12 +100,12 @@ static int sdh_state_req_observer_notify(enum nrf_sdh_state_req req)
 
         if (handler(req, p_observer->context))
         {
-            LOG_DBG("Notify observer 0x%08X => ready", p_observer);
+            LOG_DBG("Notify observer 0x%x => ready\r\n", p_observer);
         }
         else
         {
             // Process is stopped.
-            LOG_DBG("Notify observer 0x%08X => blocking", p_observer);
+            LOG_INF("Notify observer 0x%08x => blocking\n", p_observer);
             return -EBUSY;
         }
     }
@@ -134,18 +134,19 @@ static int sdh_state_req_observer_notify(enum nrf_sdh_state_req req)
 
 __WEAK void softdevice_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
-	LOG_ERR("SoftDevice fault! ID %#x, PC %#x, Info %#x", id, pc, info);
+	LOG_INF("SoftDevice fault! ID %#x, PC %#x, Info %#x", id, pc, info);
+
 
 	switch (id) {
 	case NRF_FAULT_ID_SD_ASSERT:
-		LOG_ERR("NRF_FAULT_ID_SD_ASSERT: SoftDevice assert");
+		LOG_INF("NRF_FAULT_ID_SD_ASSERT: SoftDevice assert");
 		break;
 	case NRF_FAULT_ID_APP_MEMACC:
-		LOG_ERR("NRF_FAULT_ID_APP_MEMACC: Application bad memory access");
+		LOG_INF("NRF_FAULT_ID_APP_MEMACC: Application bad memory access");
 		if (info == 0x00) {
-			LOG_ERR("Application tried to access SoftDevice RAM");
+			LOG_INF("Application tried to access SoftDevice RAM");
 		} else {
-			LOG_ERR("Application tried to access SoftDevice peripheral at %#x", info);
+			LOG_INF("Application tried to access SoftDevice peripheral at %#x", info);
 		}
 		break;
 	}
@@ -188,7 +189,7 @@ int nrf_sdh_enable_request(void)
 
 	err = sd_softdevice_enable(&clock_lf_cfg, softdevice_fault_handler);
 	if (err) {
-		LOG_ERR("Failed to enable SoftDevice, nrf_error %#x", err);
+		LOG_INF("Failed to enable SoftDevice, nrf_error %#x\n", err);
 		return -EINVAL;
 	}
 
@@ -354,13 +355,14 @@ static void isr_handler(const void *arg)
 	//ARG_UNUSED(arg);
 	SD_EVT_IRQHandler();
 }
-
-static int sd_irq_init(void)
+#endif
+ int sdh_irq_init(void)
 {
 	//IRQ_CONNECT(SD_EVT_IRQn, 4, isr_handler, NULL, 0);
 	//irq_enable(SD_EVT_IRQn);
-
+        NVIC_SetPriority(SD_EVT_IRQn, 4);
+NVIC_EnableIRQ(SD_EVT_IRQn);
 	return 0;
 }
-#endif
+
 //SYS_INIT(sd_irq_init, POST_KERNEL, 0);
