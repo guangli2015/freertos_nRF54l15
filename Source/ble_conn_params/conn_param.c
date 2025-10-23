@@ -7,9 +7,34 @@
 #include <ble_conn_params.h>
 #include <nrf_sdh.h>
 #include <nrf_sdh_ble.h>
-#include <zephyr/logging/log.h>
-
-LOG_MODULE_DECLARE(ble_conn_params, CONFIG_BLE_CONN_PARAMS_LOG_LEVEL);
+#include <string.h>
+#include "log.h"
+#include "err_num.h"
+/**
+ * @brief Clamp a value to a given range.
+ *
+ * @note Arguments are evaluated multiple times. Use Z_CLAMP for a GCC-only,
+ * single evaluation version.
+ *
+ * @param val Value to be clamped.
+ * @param low Lowest allowed value (inclusive).
+ * @param high Highest allowed value (inclusive).
+ *
+ * @returns Clamped value.
+ */
+#define CLAMP(val, low, high) (((val) <= (low)) ? (low) : MIN(val, high))
+#define CONFIG_BLE_CONN_PARAMS_MIN_CONN_INTERVAL 6
+#define CONFIG_BLE_CONN_PARAMS_MAX_CONN_INTERVAL 256
+#define CONFIG_BLE_CONN_PARAMS_PERIPHERAL_LATENCY 0
+#define CONFIG_BLE_CONN_PARAMS_SUP_TIMEOUT 100
+#define CONFIG_BLE_CONN_PARAMS_NEGOTIATION_RETRIES 2
+#define CONFIG_BLE_CONN_PARAMS_MAX_PERIPHERAL_LATENCY_DEVIATION 0
+#define CONFIG_BLE_CONN_PARAMS_MAX_SUP_TIMEOUT_DEVIATION 400
+#define CONFIG_BLE_CONN_PARAMS_DISCONNECT_ON_FAILURE 0
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+#define __ASSERT
 
 extern void ble_conn_params_event_send(const struct ble_conn_params_evt *evt);
 
@@ -136,7 +161,7 @@ static void on_conn_params_update(uint16_t conn_handle, int idx,
 
 	ble_conn_params_event_send(&app_evt);
 
-	if (IS_ENABLED(CONFIG_BLE_CONN_PARAMS_DISCONNECT_ON_FAILURE)) {
+	if ((CONFIG_BLE_CONN_PARAMS_DISCONNECT_ON_FAILURE)) {
 		LOG_INF("Disconnecting from peer %#x", conn_handle);
 		(void)sd_ble_gap_disconnect(conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
 	}
@@ -167,6 +192,7 @@ static void on_ble_evt(const ble_evt_t *evt, void *ctx)
 		break;
 	}
 }
+//NRF_SDH_BLE_OBSERVER(ble_observer, on_ble_evt, NULL, 0);
 NRF_SDH_BLE_OBSERVER(ble_observer, on_ble_evt, NULL, 0);
 
 static void on_state_evt(enum nrf_sdh_state_evt evt, void *ctx)
@@ -188,8 +214,12 @@ static void on_state_evt(enum nrf_sdh_state_evt evt, void *ctx)
 		ppcp.slave_latency,
 		ppcp.conn_sup_timeout);
 }
-NRF_SDH_STATE_EVT_OBSERVER(ble_conn_params_sdh_state_observer, on_state_evt, NULL, 0);
-
+//NRF_SDH_STATE_EVT_OBSERVER(ble_conn_params_sdh_state_observer, on_state_evt, NULL, 0);
+NRF_SDH_STATE_OBSERVER(ble_conn_params_sdh_state_observer, 0) =
+{
+    .handler   = on_state_evt,
+    .context = NULL,
+};
 int ble_conn_params_override(uint16_t conn_handle, const ble_gap_conn_params_t *conn_params)
 {
 	int err;

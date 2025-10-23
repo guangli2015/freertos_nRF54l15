@@ -8,10 +8,16 @@
 #include <ble_gattc.h>
 #include <ble_conn_params.h>
 #include <nrf_sdh_ble.h>
-#include <zephyr/logging/log.h>
-
-LOG_MODULE_DECLARE(ble_conn_params, CONFIG_BLE_CONN_PARAMS_LOG_LEVEL);
-
+#include "log.h"
+#include "err_num.h"
+#include <stdbool.h>
+#define CONFIG_BLE_CONN_PARAMS_ATT_MTU 23
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+#define __ASSERT
+//#define true	1
+//#define false	0
 extern void ble_conn_params_event_send(const struct ble_conn_params_evt *evt);
 
 static struct {

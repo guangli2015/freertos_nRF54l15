@@ -8,9 +8,15 @@
 #include <string.h>
 #include <ble_adv_data.h>
 #include <ble_gap.h>
-#include <zephyr/logging/log.h>
-#include <zephyr/sys/byteorder.h>
-#include <errno.h>
+#include "err_num.h"
+//#define	E2BIG 7		/* Arg list too long */
+//#define	EINVAL 22	/* Invalid argument */
+//#define	EFAULT 14	/* Bad address */
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+
+
 
 /* Advertising Data and Scan Response format contains 1 octet for the length. */
 #define AD_LENGTH_FIELD_SIZE 1UL
@@ -57,7 +63,36 @@
 
 #define N_AD_TYPES 2 /* The number of Advertising data types to search for at a time. */
 
-LOG_MODULE_REGISTER(ble_adv_data);
+
+/**
+ *  @brief Put a 16-bit integer as little-endian to arbitrary location.
+ *
+ *  Put a 16-bit integer, originally in host endianness, to a
+ *  potentially unaligned memory location in little-endian format.
+ *
+ *  @param val 16-bit integer in host endianness.
+ *  @param dst Destination memory address to store the result.
+ */
+static inline void sys_put_le16(uint16_t val, uint8_t dst[2])
+{
+	dst[0] = val;
+	dst[1] = val >> 8;
+}
+
+/**
+ *  @brief Get a 16-bit integer stored in little-endian format.
+ *
+ *  Get a 16-bit integer, stored in little-endian format in a potentially
+ *  unaligned memory location, and convert it to the host endianness.
+ *
+ *  @param src Location of the little-endian 16-bit integer to get.
+ *
+ *  @return 16-bit integer in host endianness.
+ */
+static inline uint16_t sys_get_le16(const uint8_t src[2])
+{
+	return ((uint16_t)src[1] << 8) | src[0];
+}
 
 static int device_addr_encode(uint8_t *buf, uint16_t *offset, uint16_t max_size)
 {

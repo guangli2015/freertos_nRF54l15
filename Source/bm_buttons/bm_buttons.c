@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <zephyr/logging/log.h>
-#include <zephyr/irq.h>
+
 #include <nrfx_gpiote.h>
 #include <nrfx_glue.h>
 
 #include <bm_timer.h>
 #include <bm_buttons.h>
 
-LOG_MODULE_REGISTER(bm_buttons, CONFIG_BM_BUTTONS_LOG_LEVEL);
+
 
 #define IRQ_PRIO     3
 #define BITS_PER_PIN 4

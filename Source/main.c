@@ -43,6 +43,8 @@ Purpose : Generic application start
 
 #include <nrfx_grtc.h>
 #include <nrfx_clock.h>
+#include "err_num.h"
+//#define CONFIG_BLE_CONN_PARAMS_INITIATE_ATT_MTU_EXCHANGE 1
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
 #define BOARD_PIN_LED_1 NRF_PIN_PORT_TO_PIN_NUMBER(10, 1)
@@ -232,7 +234,7 @@ if (err != NRFX_SUCCESS) {
 		
         	return -1;
 	}
-   LOG_INF("Hello world of 54l %d\r\n",15);
+   LOG_INF("Hello world of 54l %d\r\n",IS_ENABLED(CONFIG_BLE_CONN_PARAMS_INITIATE_ATT_MTU_EXCHANGE));
  //  fill_stack_pattern();
 #if 0
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,

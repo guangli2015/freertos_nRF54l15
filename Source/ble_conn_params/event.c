@@ -6,10 +6,7 @@
 
 #include <stddef.h>
 #include <ble_conn_params.h>
-#include <zephyr/logging/log.h>
-
-LOG_MODULE_REGISTER(ble_conn_params, CONFIG_BLE_CONN_PARAMS_LOG_LEVEL);
-
+#include "err_num.h"
 /* Optional event handler set by the application */
 static ble_conn_params_evt_handler_t evt_handler;
 

@@ -5,12 +5,17 @@
  */
 #include <ble_gap.h>
 #include <ble_conn_params.h>
-#include <errno.h>
+#include <stdbool.h>
 #include <nrf_sdh_ble.h>
-#include <zephyr/logging/log.h>
+#include "prj_config.h"
 
-LOG_MODULE_DECLARE(ble_conn_params, CONFIG_BLE_CONN_PARAMS_LOG_LEVEL);
+#include "log.h"
+#include "err_num.h"
 
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+#define __ASSERT
 extern void ble_conn_params_event_send(const struct ble_conn_params_evt *evt);
 
 static struct {
@@ -23,8 +28,14 @@ static struct {
 	},
 };
 
-BUILD_ASSERT(CONFIG_BLE_CONN_PARAMS_PHY == BLE_GAP_PHY_AUTO ||
-	     !!(CONFIG_BLE_CONN_PARAMS_PHY & BLE_GAP_PHYS_SUPPORTED), "Invalid PHY config");
+//BUILD_ASSERT(CONFIG_BLE_CONN_PARAMS_PHY == BLE_GAP_PHY_AUTO ||
+//	     !!(CONFIG_BLE_CONN_PARAMS_PHY & BLE_GAP_PHYS_SUPPORTED), "Invalid PHY config");
+
+#if CONFIG_BLE_CONN_PARAMS_PHY != BLE_GAP_PHY_AUTO && \
+   !(CONFIG_BLE_CONN_PARAMS_PHY & BLE_GAP_PHYS_SUPPORTED)
+#error "Invalid PHY config"
+#endif
+
 
 static void radio_phy_mode_update(uint16_t conn_handle, int idx)
 {

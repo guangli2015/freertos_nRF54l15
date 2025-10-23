@@ -72,6 +72,20 @@
     <folder Name="ble_adv">
       <file file_name="Source/ble_adv/ble_adv.c" />
       <file file_name="Source/ble_adv/ble_adv_data.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
+    </folder>
+    <folder Name="ble_conn_params">
+      <file file_name="Source/ble_conn_params/att_mtu.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
+      <file file_name="Source/ble_conn_params/conn_param.c" />
+      <file file_name="Source/ble_conn_params/data_length.c" />
+      <file file_name="Source/ble_conn_params/event.c" />
+      <file file_name="Source/ble_conn_params/phy_mode.c" />
+    </folder>
+    <folder Name="bm_buttons">
+      <file file_name="Source/bm_buttons/bm_buttons.c">
         <configuration Name="Debug" build_exclude_from_build="Yes" />
       </file>
     </folder>

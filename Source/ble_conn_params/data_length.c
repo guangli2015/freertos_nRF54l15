@@ -6,10 +6,15 @@
 #include <ble_gap.h>
 #include <ble_conn_params.h>
 #include <nrf_sdh_ble.h>
-#include <zephyr/logging/log.h>
-
-LOG_MODULE_DECLARE(ble_conn_params, CONFIG_BLE_CONN_PARAMS_LOG_LEVEL);
-
+#include <string.h>
+#include "prj_config.h"
+#include <stdbool.h>
+#include "log.h"
+#include "err_num.h"
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+#define __ASSERT
 #define BLE_GAP_DATA_LENGTH_DEFAULT 27
 #define BLE_GAP_DATA_LENGTH_MAX 251
 

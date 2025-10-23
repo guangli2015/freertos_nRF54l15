@@ -61,7 +61,7 @@ typedef struct
  * @param[in]   _context    Parameter to the event handler.
  * @hideinitializer
  */
-#define NRF_SDH_BLE_OBSERVER(_name, _prio, _handler, _context)                                      \
+#define NRF_SDH_BLE_OBSERVER(_name, _handler, _context, _prio)                                      \
 NRF_SECTION_SET_ITEM_REGISTER(sdh_ble_observers, _prio, static nrf_sdh_ble_evt_observer _name) =  \
 {                                                                                                   \
     .handler   = _handler,                                                                          \

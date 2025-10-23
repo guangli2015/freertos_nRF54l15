@@ -8,9 +8,9 @@
 #include <ble_adv_data.h>
 #include <nrf_sdh_ble.h>
 
-#include <errno.h>
 #include <string.h>
 #include "log.h"
+#include "err_num.h"
 #define CONFIG_BLE_ADV_USE_WHITELIST 0
 #define CONFIG_BLE_ADV_RESTART_ON_DISCONNECT 1
 #define CONFIG_BLE_ADV_EXTENDED_ADVERTISING 0
