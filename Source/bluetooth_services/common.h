@@ -1,0 +1,43 @@
+/**
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#ifndef BLE_SERVICES_COMMON_H__
+#define BLE_SERVICES_COMMON_H__
+
+#include <ble.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+static inline uint16_t sys_get_le16(const uint8_t src[2])
+{
+	return ((uint16_t)src[1] << 8) | src[0];
+}
+static inline uint16_t is_notification_enabled(const uint8_t *gatts_write_data)
+{
+	const uint16_t cccd_val = sys_get_le16(gatts_write_data);
+
+	return (cccd_val & BLE_GATT_HVX_NOTIFICATION);
+}
+
+static inline uint16_t is_indication_enabled(const uint8_t *gatts_write_data)
+{
+	const uint16_t cccd_val = sys_get_le16(gatts_write_data);
+
+	return (cccd_val & BLE_GATT_HVX_INDICATION);
+}
+
+#define gap_conn_sec_mode_from_u8(x)                                                               \
+	{                                                                                          \
+		.sm = ((x) >> 4) & 0xf, .lv = (x) & 0xf,                                           \
+	}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* BLE_SERVICES_COMMON_H__ */

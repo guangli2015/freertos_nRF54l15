@@ -9,16 +9,17 @@
 #include <ble_adv.h>
 #include <ble_gap.h>
 #include <nrf_soc.h>
-#include <bluetooth/services/ble_lbs.h>
-#include <bluetooth/services/ble_dis.h>
-#include <zephyr/logging/log.h>
-#include <zephyr/logging/log_ctrl.h>
+#include "ble_lbs.h"
 
 #include <board-config.h>
-
 #include <bm_buttons.h>
+#include "prj_config.h"
+#include "log.h"
+#define LOG_DBG
+#define LOG_ERR
+#define LOG_WRN
+#define __ASSERT
 
-LOG_MODULE_REGISTER(app, CONFIG_BLE_LBS_SAMPLE_LOG_LEVEL);
 
 BLE_ADV_DEF(ble_adv); /* BLE advertising instance */
 BLE_LBS_DEF(ble_lbs); /* BLE LED Button Service instance */
@@ -124,7 +125,7 @@ static void lbs_evt_handler(struct ble_lbs *lbs, const struct ble_lbs_evt *lbs_e
 	}
 }
 
-int main(void)
+int ble_lbs_sample(void)
 {
 	int err;
 	struct ble_adv_config ble_adv_config = {
@@ -167,7 +168,7 @@ int main(void)
 			.handler = button_handler,
 		},
 		1,
-		BM_BUTTONS_DETECTION_DELAY_MIN_US);
+		0);
 	if (err) {
 		LOG_ERR("Failed to initialize buttons, err: %d", err);
 		goto idle;
@@ -185,11 +186,7 @@ int main(void)
 		goto idle;
 	}
 
-	err = ble_dis_init();
-	if (err) {
-		LOG_ERR("Failed to initialize device information service, err %d", err);
-		goto idle;
-	}
+
 
 	/* Adding the LBS UUID to the scan response data. */
 	ble_uuid_t adv_uuid_list[] = {
@@ -216,9 +213,7 @@ int main(void)
 
 idle:
 	while (true) {
-		while (LOG_PROCESS()) {
-		}
-
+		
 		/* Wait for an event. */
 		__WFE();
 

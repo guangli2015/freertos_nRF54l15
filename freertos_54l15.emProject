@@ -48,7 +48,7 @@
       arm_target_device_name="nRF54L15_M33"
       arm_target_interface_type="SWD"
       c_preprocessor_definitions="NRF54L15_XXAA;NRF_APPLICATION;__STARTUP_CLEAR_BSS"
-      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure;Source/FreeRTOS/include;Source/section_vars;Source/softdevice_handler;Source/softdevice/s115/s115_API/include;Source/ble_adv;Source/ble_conn_params;Source/bm_buttons"
+      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/FreeRTOS/portable/GCC/ARM_CM33_NTZ/non_secure;Source/FreeRTOS/include;Source/section_vars;Source/softdevice_handler;Source/softdevice/s115/s115_API/include;Source/ble_adv;Source/ble_conn_params;Source/bm_buttons;Source/bluetooth_services/ble_dis;Source/bluetooth_services/ble_lbs;Source/bluetooth_services"
       debug_stack_pointer_start="__stack_end__"
       debug_target_connection="J-Link"
       gcc_entry_point="Reset_Handler"
@@ -63,7 +63,7 @@
     <configuration
       LIBRARY_IO_TYPE="RTT"
       Name="Debug"
-      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include"
+      c_user_include_directories=".;Source/nrfx/drivers;Source/nrfx/drivers/include;Source/nrfx/mdk;Source/nrfx/hal;Source/nrfx/haly;Source/nrfx/drivers/src;Source/nrfx/helpers;Source/nrfx/soc;Source;Source/nrfx;Source/cmsis/include;Source/bluetooth_services/ble_dis;Source/bluetooth_services/ble_lbs"
       link_linker_script_file="Setup/nrf54l15_xxaa_application.ld"
       link_use_linker_script_file="Yes" />
     <configuration
@@ -84,9 +84,15 @@
       <file file_name="Source/ble_conn_params/event.c" />
       <file file_name="Source/ble_conn_params/phy_mode.c" />
     </folder>
+    <folder Name="bluetooth_services">
+      <file file_name="Source/bluetooth_services/ble_dis/dis.c">
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
+      </file>
+      <file file_name="Source/bluetooth_services/ble_lbs/lbs.c" />
+    </folder>
     <folder Name="bm_buttons">
       <file file_name="Source/bm_buttons/bm_buttons.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
     </folder>
     <folder Name="freeRTOS">
@@ -118,6 +124,8 @@
     <folder Name="Setup">
       <file file_name="Source/FreeRTOSConfig.h" />
       <file file_name="Setup/nrf54l15_xxaa_application.ld" />
+      <file file_name="Source/nrfx_config_nrf54l15_application.h" />
+      <file file_name="Source/prj_config.h" />
     </folder>
     <folder Name="softdevice_handler">
       <file file_name="Source/softdevice_handler/irq_connect.c" />
@@ -137,6 +145,7 @@
     </folder>
     <folder Name="Source">
       <configuration Name="Debug" build_exclude_from_build="No" />
+      <file file_name="Source/ble_lbs_sample.c" />
       <file file_name="Source/nrfx/mdk/gcc_startup_nrf54l15_application.S" />
       <file file_name="Source/log.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
@@ -150,6 +159,7 @@
       </file>
       <file file_name="Source/nrfx/helpers/nrfx_flag32_allocator.c" />
       <file file_name="Source/nrfx_glue.c" />
+      <file file_name="Source/nrfx/drivers/src/nrfx_gpiote.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_grtc.c" />
       <file file_name="Source/nrfx/drivers/src/nrfx_uarte.c" />
       <file file_name="Source/softdevice_test.c">

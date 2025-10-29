@@ -283,7 +283,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE_ENABLED
-#define NRFX_GPIOTE_ENABLED 0
+#define NRFX_GPIOTE_ENABLED 1
 #endif
 
 /**
@@ -334,7 +334,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE20_ENABLED
-#define NRFX_GPIOTE20_ENABLED 0
+#define NRFX_GPIOTE20_ENABLED 1
 #endif
 
 /**
@@ -343,7 +343,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE30_ENABLED
-#define NRFX_GPIOTE30_ENABLED 0
+#define NRFX_GPIOTE30_ENABLED 1
 #endif
 
 /**

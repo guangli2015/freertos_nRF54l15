@@ -16,6 +16,18 @@ extern "C" {
 //phy_mode.c
 #define CONFIG_BLE_CONN_PARAMS_PHY 0x00
 #define CONFIG_NRF_SDH_BLE_GAP_EVENT_LENGTH 3
+
+//dis.c
+#define CONFIG_BLE_DIS_CHAR_SEC_MODE 0x11
+#define CONFIG_BLE_DIS_MANUFACTURER_NAME "Nordic Semiconductor"
+#define CONFIG_BLE_DIS_MODEL_NUMBER "nrf54l15"
+#define CONFIG_BLE_DIS_SERIAL_NUMBER "ABCD"
+#define CONFIG_BLE_DIS_HW_REVISION "hw 54.15.0"
+#define CONFIG_BLE_DIS_FW_REVISION "fw 17.2.0"
+#define CONFIG_BLE_DIS_SW_REVISION "sw 1.0.0"
+
+#define CONFIG_NRF_SDH_BLE_CONN_TAG 99
+#define CONFIG_BLE_ADV_NAME "nRF_BM_LBS"
 #ifdef __cplusplus
 }
 #endif

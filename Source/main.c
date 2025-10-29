@@ -44,6 +44,7 @@ Purpose : Generic application start
 #include <nrfx_grtc.h>
 #include <nrfx_clock.h>
 #include "err_num.h"
+#include "bm_buttons.h"
 //#define CONFIG_BLE_CONN_PARAMS_INITIATE_ATT_MTU_EXCHANGE 1
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
@@ -61,7 +62,9 @@ Purpose : Generic application start
 #ifndef BOARD_PIN_LED_3
 #define BOARD_PIN_LED_3 NRF_PIN_PORT_TO_PIN_NUMBER(14, 1)
 #endif
-
+#ifndef BOARD_PIN_BTN_0
+#define BOARD_PIN_BTN_0 NRF_PIN_PORT_TO_PIN_NUMBER(13, 1)
+#endif
 
 void SysTick_Configuration(void);
 
@@ -222,6 +225,13 @@ LOG_INF("__StackLimit = 0x%x", (uint32_t)__StackLimit);
     }
 }
 
+
+//static void button_handler(uint8_t pin, enum bm_buttons_evt_type action)
+//{
+//	LOG_INF("Button event callback: %d, %d", pin, action);
+//	//ble_lbs_on_button_change(&ble_lbs, conn_handle, action);
+//}
+int ble_lbs_sample(void);
 int main(void)
 {
     int count = 1;
@@ -313,7 +323,30 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
 #endif
 
 
- sftdevice_test();
+ //sftdevice_test();
+//bm_buttons_init();
+//err = bm_buttons_init(
+//		&(struct bm_buttons_config){
+//			.pin_number = BOARD_PIN_BTN_0,
+//			.active_state = BM_BUTTONS_ACTIVE_LOW,
+//			.pull_config = BM_BUTTONS_PIN_PULLUP,
+//			.handler = button_handler,
+//		},
+//		1,
+//		0);
+
+//bm_buttons_enable();
+ble_lbs_sample();
+	while (true) {
+		
+
+		/* Wait for an event. */
+		__WFE();
+
+		/* Clear Event Register */
+		__SEV();
+		__WFE();
+	}
     return 0;
 }
 
