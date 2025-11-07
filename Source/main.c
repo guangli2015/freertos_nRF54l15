@@ -23,6 +23,7 @@ Purpose : Generic application start
 
 
 #define NRFX_UARTE22_ENABLED 1*/
+
 #define BOARD_APP_UARTE_PIN_TX NRF_PIN_PORT_TO_PIN_NUMBER(0, 0)
 
 
@@ -32,7 +33,6 @@ Purpose : Generic application start
 
 
 #define BOARD_APP_UARTE_PIN_CTS NRF_PIN_PORT_TO_PIN_NUMBER(3, 0)
-
 #include <hal/nrf_gpio.h>
 #include <nrfx_uarte.h>
 #include "test_section.h"
@@ -79,11 +79,6 @@ static const nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(30);
 /* Receive buffer used in UARTE ISR callback */
 static uint8_t uarte_rx_buf[4];
 static int buf_idx;
-int _write(int file, char *ptr, int len) {
-    // 直接使用 nrfx_uarte_tx 发送
-     nrfx_uarte_tx(&uarte_inst, (uint8_t *)ptr, len, NRFX_UARTE_TX_BLOCKING);
-    return len;
-}
 
 /* Handle data received from UARTE. */
 static void uarte_rx_handler(char *data, size_t data_len)
@@ -202,50 +197,11 @@ NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO)
 #endif
 extern int sftdevice_test(void);
 extern int softdevice_irq_init(void);
-extern  int sdh_irq_init(void);
-
-
-
-extern uint32_t __StackTop;
-extern uint32_t __StackLimit;
-
-
-
-
-void fill_stack_pattern(void) {
-//uint32_t *stack_top = (uint32_t *)__StackTop;
-//uint32_t *stack_limit = (uint32_t *)__StackLimit;
-
-LOG_INF("__StackTop  = 0x%x", (uint32_t)__StackTop);
-LOG_INF("__StackLimit = 0x%x", (uint32_t)__StackLimit);
-
-    uint32_t *p = &__StackLimit;
-    while (p <= &__StackTop) {
-        *p++ = 0xDEADBEEF;
-    }
-}
-
-
-//static void button_handler(uint8_t pin, enum bm_buttons_evt_type action)
-//{
-//	LOG_INF("Button event callback: %d, %d", pin, action);
-//	//ble_lbs_on_button_change(&ble_lbs, conn_handle, action);
-//}
-int ble_lbs_sample(void);
 int main(void)
 {
     int count = 1;
 int err;
-SysTick_Configuration();
-softdevice_irq_init();
-//sdh_irq_init();
-err = log_init();
-if (err != NRFX_SUCCESS) {
-		
-        	return -1;
-	}
-   LOG_INF("Hello world of 54l %d\r\n",IS_ENABLED(CONFIG_BLE_CONN_PARAMS_INITIATE_ATT_MTU_EXCHANGE));
- //  fill_stack_pattern();
+
 #if 0
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(BOARD_APP_UARTE_PIN_TX,
 								     BOARD_APP_UARTE_PIN_RX);
@@ -260,7 +216,12 @@ if (err != NRFX_SUCCESS) {
 
 	const uint8_t out[] = "Hello world! I will echo the lines you enter:\r\n";
 
-        //printf("hello word\n");
+	err = nrfx_uarte_tx(&uarte_inst, out, sizeof(out), NRFX_UARTE_TX_BLOCKING);
+	if (err != NRFX_SUCCESS) {
+		//printk("UARTE TX failed, nrfx err %d\n", err);
+		return -1;
+	}
+
     /* Start reception */
 	err = nrfx_uarte_rx_enable(&(uarte_inst), 0);
 	if (err != NRFX_SUCCESS) {
@@ -268,6 +229,10 @@ if (err != NRFX_SUCCESS) {
         	return -1;
 	}
 #endif
+SysTick_Configuration();
+log_init();
+softdevice_irq_init();
+sftdevice_test();
     //rt_pin_mode(RT_BSP_LED_PIN, PIN_MODE_OUTPUT);
 nrf_gpio_cfg_output(BOARD_PIN_LED_0);
 nrf_gpio_cfg_output(BOARD_PIN_LED_1);
@@ -314,39 +279,12 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
 
         /* Start FreeRTOS scheduler. */
     vTaskStartScheduler();
-
+#endif
     while (true)
     {
         /* FreeRTOS should not be here... FreeRTOS goes back to the start of stack
          * in vTaskStartScheduler function. */
     }
-#endif
-
-
- //sftdevice_test();
-//bm_buttons_init();
-//err = bm_buttons_init(
-//		&(struct bm_buttons_config){
-//			.pin_number = BOARD_PIN_BTN_0,
-//			.active_state = BM_BUTTONS_ACTIVE_LOW,
-//			.pull_config = BM_BUTTONS_PIN_PULLUP,
-//			.handler = button_handler,
-//		},
-//		1,
-//		0);
-
-//bm_buttons_enable();
-ble_lbs_sample();
-	while (true) {
-		
-
-		/* Wait for an event. */
-		__WFE();
-
-		/* Clear Event Register */
-		__SEV();
-		__WFE();
-	}
     return 0;
 }
 
@@ -407,7 +345,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
     *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 
-
+#if 1
 /*--------------------add GRTC driver for systick by Andrew------------------------------*/
 #define SYS_CLOCK_HW_CYCLES_PER_SEC 1000000
 #define SYS_CLOCK_TICKS_PER_SEC 1000
@@ -456,24 +394,25 @@ static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_conte
 
 	system_timeout_set_abs(last_count + CYC_PER_TICK);
 
-    //    uint32_t ulPreviousMask;
-
-    //ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
-    //traceISR_ENTER();
-    //{
-    //    /* Increment the RTOS tick. */
-    //    if( xTaskIncrementTick() != pdFALSE )
-    //    {
-    //        traceISR_EXIT_TO_SCHEDULER();
-    //        /* Pend a context switch. */
-    //        portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;
-    //    }
-    //    else
-    //    {
-    //        traceISR_EXIT();
-    //    }
-    //}
-    //portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+        uint32_t ulPreviousMask;
+#if 0
+    ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
+    traceISR_ENTER();
+    {
+        /* Increment the RTOS tick. */
+        if( xTaskIncrementTick() != pdFALSE )
+        {
+            traceISR_EXIT_TO_SCHEDULER();
+            /* Pend a context switch. */
+            portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;
+        }
+        else
+        {
+            traceISR_EXIT();
+        }
+    }
+    portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+#endif
 }
 
 static void clk_event_handler(nrfx_clock_evt_type_t event){}
@@ -510,9 +449,10 @@ static int sys_clock_driver_init(void)
 }
 void SysTick_Configuration(void)
 {
-  //nrfx_clock_init(clk_event_handler);	
- // nrfx_clock_enable();
+  nrfx_clock_init(clk_event_handler);	
+  //nrfx_clock_enable();
   sys_clock_driver_init();
- // nrfx_clock_lfclk_start();
+  //nrfx_clock_lfclk_start();
 }
+#endif
 /*************************** End of file ****************************/

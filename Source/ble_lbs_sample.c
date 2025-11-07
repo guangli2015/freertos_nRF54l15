@@ -15,6 +15,7 @@
 #include <bm_buttons.h>
 #include "prj_config.h"
 #include "log.h"
+#include "nrf_sdh_freertos.h"
 #define LOG_DBG
 #define LOG_ERR
 #define LOG_WRN
@@ -124,7 +125,22 @@ static void lbs_evt_handler(struct ble_lbs *lbs, const struct ble_lbs_evt *lbs_e
 		break;
 	}
 }
+/**@brief Function for starting advertising. */
+static void advertising_start(void * p_erase_bonds)
+{
+    bool erase_bonds = *(bool*)p_erase_bonds;
+    int err;
+   
+        err = ble_adv_start(&ble_adv, BLE_ADV_MODE_FAST);
+	if (err) {
+		LOG_ERR("Failed to start advertising, err %d", err);
+		
+	}
 
+	LOG_INF("Advertising as %s", CONFIG_BLE_ADV_NAME);
+      
+    
+}
 int ble_lbs_sample(void)
 {
 	int err;
@@ -210,6 +226,11 @@ int ble_lbs_sample(void)
 	}
 
 	LOG_INF("Advertising as %s", CONFIG_BLE_ADV_NAME);
+        bool erase_bonds;
+        erase_bonds = false;
+        // Create a FreeRTOS task for the BLE stack.
+        // The task will run advertising_start() before entering its loop.
+       // nrf_sdh_freertos_init(advertising_start, &erase_bonds);
 
 idle:
 	while (true) {

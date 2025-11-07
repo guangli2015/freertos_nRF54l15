@@ -51,7 +51,7 @@ ConsumeOrForwardIRQ:
 SVC_Handler:
     LDR   R0, =NRF_SD_ISR_OFFSET_SVC
 ForwardIRQ_ForwardToSoftDevice:
-    /* SoftDevice interrupt vector is located in softdevice_vector_forward_address */
+    /* SoftDevice interrupt vector is located in softdevice_vector_forward_address SVC_Handler_forward */
     LDR   R1, =softdevice_vector_forward_address
     LDR   R1, [R1]
     LDR   R1, [R1, R0]  /* Vector value (with Thumb marker in bit 0) */

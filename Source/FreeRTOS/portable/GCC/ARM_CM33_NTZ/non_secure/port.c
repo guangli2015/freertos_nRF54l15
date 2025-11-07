@@ -776,6 +776,7 @@ PRIVILEGED_DATA static volatile uint32_t ulCriticalNesting = 0xaaaaaaaaUL;
 
 #endif /* configUSE_TICKLESS_IDLE */
 /*--------------------add GRTC driver for systick by Andrew------------------------------*/
+#if 0
 #define SYS_CLOCK_HW_CYCLES_PER_SEC 1000000
 #define SYS_CLOCK_TICKS_PER_SEC 1000
 #define CYC_PER_TICK                                                                               \
@@ -878,11 +879,11 @@ static int sys_clock_driver_init(void)
 void SysTick_Configuration(void)
 {
   nrfx_clock_init(clk_event_handler);	
-  nrfx_clock_enable();
+  //nrfx_clock_enable();
   sys_clock_driver_init();
-  nrfx_clock_lfclk_start();
+  //nrfx_clock_lfclk_start();
 }
-
+#endif
 __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FUNCTION */
 {
 #if 0
@@ -910,7 +911,7 @@ __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FU
     portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
     portNVIC_SYSTICK_CTRL_REG = portNVIC_SYSTICK_CLK_BIT_CONFIG | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT;
 #endif
-SysTick_Configuration();
+//SysTick_Configuration();
 }
 /*-----------------------------------------------------------*/
 
@@ -1140,7 +1141,7 @@ void SysTick_Handler( void ) /* PRIVILEGED_FUNCTION */
     portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
 }
 /*-----------------------------------------------------------*/
-
+//extern void SVC_Handler_forward(void);
 void vPortSVCHandler_C( uint32_t * pulCallerStackAddress ) /* PRIVILEGED_FUNCTION portDONT_DISCARD */
 {
     #if ( ( configENABLE_MPU == 1 ) && ( configUSE_MPU_WRAPPERS_V1 == 1 ) )
@@ -1263,6 +1264,8 @@ void vPortSVCHandler_C( uint32_t * pulCallerStackAddress ) /* PRIVILEGED_FUNCTIO
         default:
             /* Incorrect SVC call. */
             configASSERT( pdFALSE );
+            //forward to softdevice
+            //SVC_Handler_forward();
     }
 }
 /*-----------------------------------------------------------*/

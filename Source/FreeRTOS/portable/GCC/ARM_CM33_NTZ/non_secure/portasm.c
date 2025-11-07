@@ -193,6 +193,8 @@ void vResetPrivilege( void ) /* __attribute__ (( naked )) */
 
 void vStartFirstTask( void ) /* __attribute__ (( naked )) PRIVILEGED_FUNCTION */
 {
+
+#if 0
     __asm volatile
     (
         "   .syntax unified                                 \n"
@@ -208,6 +210,22 @@ void vStartFirstTask( void ) /* __attribute__ (( naked )) PRIVILEGED_FUNCTION */
         "   svc %0                                          \n" /* System call to start the first task. */
         "   nop                                             \n"
         ::"i" ( portSVC_START_SCHEDULER ) : "memory"
+    );
+#endif
+    __asm volatile
+    (
+        "   .syntax unified                                 \n"
+        "                                                   \n"
+        "   ldr r0, =0xe000ed08                             \n" /* SCB->VTOR */
+        "   ldr r0, [r0]                                    \n" /* Vector table base address */
+        "   ldr r0, [r0]                                    \n" /* Initial MSP value */
+        "   msr msp, r0                                     \n" /* Set MSP */
+        "   cpsie i                                         \n" /* Enable interrupts */
+        "   cpsie f                                         \n"
+        "   dsb                                             \n"
+        "   isb                                             \n"
+        "   bl vRestoreContextOfFirstTask                   \n" /* Directly restore context */
+        "   nop                                             \n"
     );
 }
 /*-----------------------------------------------------------*/
@@ -451,7 +469,7 @@ void vClearInterruptMask( __attribute__( ( unused ) ) uint32_t ulMask ) /* __att
     }
 
 #else /* ( configENABLE_MPU == 1 ) && ( configUSE_MPU_WRAPPERS_V1 == 0 ) */
-
+#if 0
     void SVC_Handler( void ) /* __attribute__ (( naked )) PRIVILEGED_FUNCTION */
     {
         __asm volatile
@@ -466,6 +484,6 @@ void vClearInterruptMask( __attribute__( ( unused ) ) uint32_t ulMask ) /* __att
             "   bx r1                                           \n"
         );
     }
-
+#endif
 #endif /* ( configENABLE_MPU == 1 ) && ( configUSE_MPU_WRAPPERS_V1 == 0 ) */
 /*-----------------------------------------------------------*/

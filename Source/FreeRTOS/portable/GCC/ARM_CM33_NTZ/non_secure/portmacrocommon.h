@@ -324,7 +324,7 @@ extern void vClearInterruptMask( uint32_t ulMask ) /* __attribute__(( naked )) P
  */
 #define portSVC_ALLOCATE_SECURE_CONTEXT    100
 #define portSVC_FREE_SECURE_CONTEXT        101
-#define portSVC_START_SCHEDULER            102
+#define portSVC_START_SCHEDULER            0
 #define portSVC_RAISE_PRIVILEGE            103
 #define portSVC_SYSTEM_CALL_EXIT           104
 #define portSVC_YIELD                      105

@@ -92,11 +92,11 @@
     </folder>
     <folder Name="bm_buttons">
       <file file_name="Source/bm_buttons/bm_buttons.c">
-        <configuration Name="Debug" build_exclude_from_build="No" />
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
       </file>
     </folder>
     <folder Name="freeRTOS">
-      <configuration Name="Debug" build_exclude_from_build="Yes" />
+      <configuration Name="Debug" build_exclude_from_build="No" />
       <folder Name="portable">
         <folder Name="common">
           <file file_name="Source/FreeRTOS/portable/Common/mpu_wrappers.c" />
@@ -128,13 +128,20 @@
       <file file_name="Source/prj_config.h" />
     </folder>
     <folder Name="softdevice_handler">
-      <file file_name="Source/softdevice_handler/irq_connect.c" />
-      <file file_name="Source/softdevice_handler/irq_forward.s" />
+      <file file_name="Source/softdevice_handler/irq_connect.c">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
+      <file file_name="Source/softdevice_handler/irq_forward.s">
+        <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
       <file file_name="Source/softdevice_handler/nrf_sdh.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/softdevice_handler/nrf_sdh_ble.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
+      </file>
+      <file file_name="Source/softdevice_handler/nrf_sdh_freertos.c">
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
       </file>
       <file file_name="Source/softdevice_handler/nrf_sdh_soc.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
@@ -145,7 +152,9 @@
     </folder>
     <folder Name="Source">
       <configuration Name="Debug" build_exclude_from_build="No" />
-      <file file_name="Source/ble_lbs_sample.c" />
+      <file file_name="Source/ble_lbs_sample.c">
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
+      </file>
       <file file_name="Source/nrfx/mdk/gcc_startup_nrf54l15_application.S" />
       <file file_name="Source/log.c">
         <configuration Name="Debug" build_exclude_from_build="No" />
@@ -155,7 +164,7 @@
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/nrfx/drivers/src/nrfx_clock.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/nrfx/helpers/nrfx_flag32_allocator.c" />
       <file file_name="Source/nrfx_glue.c" />

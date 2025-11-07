@@ -54,7 +54,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_CLOCK_ENABLED
-#define NRFX_CLOCK_ENABLED 1
+#define NRFX_CLOCK_ENABLED 0
 #endif
 
 /**
@@ -283,7 +283,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE_ENABLED
-#define NRFX_GPIOTE_ENABLED 1
+#define NRFX_GPIOTE_ENABLED 0
 #endif
 
 /**
@@ -334,7 +334,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE20_ENABLED
-#define NRFX_GPIOTE20_ENABLED 1
+#define NRFX_GPIOTE20_ENABLED 0
 #endif
 
 /**
@@ -343,7 +343,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GPIOTE30_ENABLED
-#define NRFX_GPIOTE30_ENABLED 1
+#define NRFX_GPIOTE30_ENABLED 0
 #endif
 
 /**
@@ -352,7 +352,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_GRTC_ENABLED
-#define NRFX_GRTC_ENABLED 1
+#define NRFX_GRTC_ENABLED 0
 #endif
 
 /**
@@ -1637,7 +1637,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE_ENABLED
-#define NRFX_UARTE_ENABLED 1
+#define NRFX_UARTE_ENABLED 0
 #endif
 
 /**
@@ -1706,7 +1706,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE00_ENABLED
-#define NRFX_UARTE00_ENABLED 1
+#define NRFX_UARTE00_ENABLED 0
 #endif
 
 /**
@@ -1715,7 +1715,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE20_ENABLED
-#define NRFX_UARTE20_ENABLED 1
+#define NRFX_UARTE20_ENABLED 0
 #endif
 
 /**
@@ -1724,7 +1724,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE21_ENABLED
-#define NRFX_UARTE21_ENABLED 1
+#define NRFX_UARTE21_ENABLED 0
 #endif
 
 /**
@@ -1733,7 +1733,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE22_ENABLED
-#define NRFX_UARTE22_ENABLED 1
+#define NRFX_UARTE22_ENABLED 0
 #endif
 
 /**
@@ -1742,7 +1742,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_UARTE30_ENABLED
-#define NRFX_UARTE30_ENABLED 1
+#define NRFX_UARTE30_ENABLED 0
 #endif
 
 /**

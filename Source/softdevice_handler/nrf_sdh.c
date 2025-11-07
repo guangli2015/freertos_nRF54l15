@@ -20,6 +20,7 @@
 #define LOG_DBG
 #define LOG_ERR
 #define CONFIG_NRF_SDH_DISPATCH_MODEL_IRQ 1
+#define CONFIG_NRF_SDH_DISPATCH_MODEL_POLL 0
 #define	EBUSY 16	/* Device or resource busy */
 #define EALREADY 120		/* Socket already connected */
 #define	EINVAL 22	/* Invalid argument */
@@ -361,7 +362,7 @@ static void isr_handler(const void *arg)
 	//IRQ_CONNECT(SD_EVT_IRQn, 4, isr_handler, NULL, 0);
 	//irq_enable(SD_EVT_IRQn);
         NVIC_SetPriority(SD_EVT_IRQn, 4);
-NVIC_EnableIRQ(SD_EVT_IRQn);
+//NVIC_EnableIRQ(SD_EVT_IRQn);
 	return 0;
 }
 

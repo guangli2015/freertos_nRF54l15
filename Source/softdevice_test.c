@@ -91,6 +91,7 @@ int sftdevice_test(void)
 	LOG_INF("Bye\r\n");
 
 idle:
+#if 0
 	while (true) {
 		
 
@@ -101,6 +102,6 @@ idle:
 		__SEV();
 		__WFE();
 	}
-
+#endif
 	return 0;
 }
