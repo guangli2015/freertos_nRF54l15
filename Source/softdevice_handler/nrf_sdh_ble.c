@@ -11,7 +11,7 @@
 #include <ble.h>
 #include <string.h>
 #include "log.h"
-#define APP_RAM_START 0x20004400
+#define APP_RAM_START 0x20002468
 #define	EFAULT 14	/* Bad address */
 #define CONFIG_NRF_SDH_BLE_CONN_TAG 99
 #define NRF_SDH_BLE_STACK_OBSERVER_PRIO 0

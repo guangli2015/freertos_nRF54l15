@@ -391,7 +391,7 @@ int ble_adv_start(struct ble_adv *ble_adv, enum ble_adv_mode mode)
 	switch (mode) {
 	case BLE_ADV_MODE_DIRECTED_HIGH_DUTY:
 		if ((CONFIG_BLE_ADV_DIRECTED_ADVERTISING_HIGH_DUTY)) {
-			LOG_INF("Directed advertising (high duty)");
+			LOG_INF("Directed advertising (high duty)\r\n");
 			mode = BLE_ADV_MODE_DIRECTED_HIGH_DUTY;
 			adv_evt.evt_type = BLE_ADV_EVT_DIRECTED_HIGH_DUTY;
 			err = set_adv_mode_directed_high_duty(ble_adv, &ble_adv->adv_params);
@@ -400,7 +400,7 @@ int ble_adv_start(struct ble_adv *ble_adv, enum ble_adv_mode mode)
 
 	case BLE_ADV_MODE_DIRECTED:
 		if ((CONFIG_BLE_ADV_DIRECTED_ADVERTISING)) {
-			LOG_INF("Directed advertising");
+			LOG_INF("Directed advertising\r\n");
 			mode = BLE_ADV_MODE_DIRECTED;
 			adv_evt.evt_type = BLE_ADV_EVT_DIRECTED;
 			err = set_adv_mode_directed(ble_adv, &ble_adv->adv_params);
@@ -409,7 +409,7 @@ int ble_adv_start(struct ble_adv *ble_adv, enum ble_adv_mode mode)
 
 	case BLE_ADV_MODE_FAST:
 		if ((CONFIG_BLE_ADV_FAST_ADVERTISING)) {
-			LOG_INF("Fast advertising");
+			LOG_INF("Fast advertising\r\n");
 			mode = BLE_ADV_MODE_FAST;
 			adv_evt.evt_type = BLE_ADV_EVT_FAST;
 			err = set_adv_mode_fast(ble_adv, &ble_adv->adv_params);
@@ -422,7 +422,7 @@ int ble_adv_start(struct ble_adv *ble_adv, enum ble_adv_mode mode)
 
 	case BLE_ADV_MODE_SLOW:
 		if ((CONFIG_BLE_ADV_SLOW_ADVERTISING)) {
-			LOG_INF("Slow advertising");
+			LOG_INF("Slow advertising\r\n");
 			mode = BLE_ADV_MODE_SLOW;
 			adv_evt.evt_type = BLE_ADV_EVT_SLOW;
 			err = set_adv_mode_slow(ble_adv, &ble_adv->adv_params);
@@ -435,25 +435,28 @@ int ble_adv_start(struct ble_adv *ble_adv, enum ble_adv_mode mode)
 
 	case BLE_ADV_MODE_IDLE:
 	default:
-		LOG_INF("Idle");
+		LOG_INF("Idle\r\n");
 		mode = BLE_ADV_MODE_IDLE;
 		adv_evt.evt_type = BLE_ADV_EVT_IDLE;
 		break;
 	}
 
 	if (mode != BLE_ADV_MODE_IDLE) {
+LOG_INF("sd1\r\n");
 		err = sd_ble_gap_adv_set_configure(&ble_adv->adv_handle, &ble_adv->adv_data,
 						   &ble_adv->adv_params);
 		if (err) {
 			LOG_ERR("Failed to set advertising data, nrf_error %#x", err);
 			return -EINVAL;
 		}
-
+LOG_INF("sd2\r\n");
 		err = sd_ble_gap_adv_start(ble_adv->adv_handle, ble_adv->conn_cfg_tag);
+                //err = sd_ble_gap_adv_start(ble_adv->adv_handle, 99);
 		if (err) {
 			LOG_ERR("Failed to start advertising, nrf_error %#x", err);
 			return -EINVAL;
 		}
+LOG_INF("sd3\r\n");
 	}
 	ble_adv->mode_current = mode;
 	ble_adv->evt_handler(ble_adv, &adv_evt);

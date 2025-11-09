@@ -51,13 +51,14 @@
 #include "log.h"
 
 
-#define NRF_BLE_FREERTOS_SDH_TASK_STACK 256
+#define NRF_BLE_FREERTOS_SDH_TASK_STACK 512
 
 
 static TaskHandle_t                 m_softdevice_task;  //!< Reference to SoftDevice FreeRTOS task.
+static TaskHandle_t                 m_softdevice_init_task;  //!< Reference to SoftDevice FreeRTOS task.
 static nrf_sdh_freertos_task_hook_t m_task_hook;        //!< A hook function run by the SoftDevice task before entering its loop.
-
-
+extern int ble_lbs_sample(void);
+#if 0
 void SD_EVT_IRQHandler(void)
 {
     BaseType_t yield_req = pdFALSE;
@@ -68,7 +69,7 @@ void SD_EVT_IRQHandler(void)
     portYIELD_FROM_ISR(yield_req);
 }
 
-
+extern int ble_lbs_sample(void);
 /* This function gets events from the SoftDevice and processes them. */
 static void softdevice_task(void * pvParameter)
 {
@@ -78,7 +79,7 @@ static void softdevice_task(void * pvParameter)
     {
         m_task_hook(pvParameter);
     }
-
+    
     while (true)
     {
         nrf_sdh_evts_poll();                    /* let the handlers run first, incase the EVENT occured before creating this task */
@@ -87,21 +88,50 @@ static void softdevice_task(void * pvParameter)
                                 portMAX_DELAY); /* Block indefinitely (INCLUDE_vTaskSuspend has to be enabled).*/
     }
 }
-
-
-void nrf_sdh_freertos_init(nrf_sdh_freertos_task_hook_t hook_fn, void * p_context)
+#endif
+/* This function gets events from the SoftDevice and processes them. */
+static void softdevice_init_task(void * pvParameter)
 {
-    LOG_INF("Creating a SoftDevice task.");
+    LOG_INF("Enter softdevice_init\r\n");
 
-    m_task_hook = hook_fn;
+    if (m_task_hook != NULL)
+    {
+        m_task_hook(pvParameter);
+    }
+     ble_lbs_sample();
+   
+    while(1)
+    {
+      vTaskDelay(pdMS_TO_TICKS(1));
+    }
+}
+
+//void nrf_sdh_freertos_init(nrf_sdh_freertos_task_hook_t hook_fn, void * p_context)
+void nrf_sdh_freertos_init(void * p_context)
+{
+    LOG_INF("Creating  SoftDevice init task.\r\n");
+#if 0
+    m_task_hook = NULL;
 
     BaseType_t xReturned = xTaskCreate(softdevice_task,
-                                       "BLE",
+                                       "BLE_init",
                                        NRF_BLE_FREERTOS_SDH_TASK_STACK,
                                        p_context,
-                                       4,
+                                       4  ,
                                        &m_softdevice_task);
     if (xReturned != pdPASS)
+    {
+        LOG_INF("SoftDevice task not created\r\n");
+
+    }
+#endif
+    BaseType_t xReturned1 = xTaskCreate(softdevice_init_task,
+                                       "BLE_SD",
+                                       NRF_BLE_FREERTOS_SDH_TASK_STACK,
+                                       p_context,
+                                        3 ,
+                                       &m_softdevice_init_task);
+    if (xReturned1 != pdPASS)
     {
         LOG_INF("SoftDevice task not created\r\n");
 

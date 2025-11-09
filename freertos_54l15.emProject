@@ -141,7 +141,7 @@
         <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/softdevice_handler/nrf_sdh_freertos.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/softdevice_handler/nrf_sdh_soc.c">
         <configuration Name="Debug" build_exclude_from_build="No" />

@@ -156,7 +156,7 @@ int ble_lbs_sample(void)
 		.evt_handler = lbs_evt_handler,
 	};
 
-	LOG_INF("BLE LBS sample started");
+	LOG_INF("BLE LBS sample started\r\n");
 
 	err = nrf_sdh_enable_request();
 	if (err) {
@@ -164,7 +164,7 @@ int ble_lbs_sample(void)
 		goto idle;
 	}
 
-	LOG_INF("SoftDevice enabled");
+	LOG_INF("SoftDevice enabled\r\n");
 
 	err = nrf_sdh_ble_enable(CONFIG_NRF_SDH_BLE_CONN_TAG);
 	if (err) {
@@ -172,7 +172,7 @@ int ble_lbs_sample(void)
 		goto idle;
 	}
 
-	LOG_INF("Bluetooth enabled");
+	LOG_INF("Bluetooth enabled\r\n");
 
 	led_init();
 
@@ -211,14 +211,15 @@ int ble_lbs_sample(void)
 	ble_adv_config.sr_data.uuid_lists.complete.uuid = &adv_uuid_list[0];
 	ble_adv_config.sr_data.uuid_lists.complete.len = ARRAY_SIZE(adv_uuid_list);
 
-	LOG_INF("Services initialized");
+	LOG_INF("Services initialized\r\n");
 
 	err = ble_adv_init(&ble_adv, &ble_adv_config);
 	if (err) {
 		LOG_ERR("Failed to initialize BLE advertising, err %d", err);
 		goto idle;
 	}
-
+        LOG_INF("adv initialized\r\n");
+#if 1
 	err = ble_adv_start(&ble_adv, BLE_ADV_MODE_FAST);
 	if (err) {
 		LOG_ERR("Failed to start advertising, err %d", err);
@@ -226,12 +227,14 @@ int ble_lbs_sample(void)
 	}
 
 	LOG_INF("Advertising as %s", CONFIG_BLE_ADV_NAME);
+#endif
+#if 0
         bool erase_bonds;
         erase_bonds = false;
         // Create a FreeRTOS task for the BLE stack.
         // The task will run advertising_start() before entering its loop.
-       // nrf_sdh_freertos_init(advertising_start, &erase_bonds);
-
+        nrf_sdh_freertos_init(advertising_start, &erase_bonds);
+#endif
 idle:
 #if 0
 	while (true) {

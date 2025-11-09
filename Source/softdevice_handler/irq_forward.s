@@ -49,22 +49,22 @@ ConsumeOrForwardIRQ:
     .globl  SVC_Handler
     .type   SVC_Handler, %function
 SVC_Handler:
-    /* 判断使用 MSP 还是 PSP */
+    /* ???? MSP ?? PSP */
     TST     LR, #4
     MRS     R0, MSP
     BEQ     use_psp
     MRS     R0, PSP
 use_psp:
 
-    /* 获取触发 SVC 的指令地址 */
+    /* ???? SVC ????? */
     LDR     R1, [R0, #24]     /* stacked PC */
-    LDRB    R2, [R1, #-2]     /* SVC 号 */
+    LDRB    R2, [R1, #-2]     /* SVC ? */
 
-    /* 判断是否为 SVC 0 */
+    /* ????? SVC 0 */
     CMP     R2, #0
     BNE     SVC_Handler_softdevice
 
-    /* 调用 FreeRTOS 的 SVC handler */
+    /* ?? FreeRTOS ? SVC handler */
     LDR     R3, =SVCHandler_freeRTOS
     BX      R3
 

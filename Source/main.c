@@ -153,7 +153,7 @@ static void led_toggle_task_function (void * pvParameter)
     while (true)
     {
        // nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
-          nrf_gpio_pin_toggle(BOARD_PIN_LED_0);
+          nrf_gpio_pin_toggle(BOARD_PIN_LED_1);
         /* Delay a task for a given number of ticks */
         vTaskDelay(1000);
 
@@ -200,6 +200,7 @@ NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO)
 extern int sftdevice_test(void);
 extern int softdevice_irq_init(void);
 extern int ble_lbs_sample(void);
+extern void nrf_sdh_freertos_init(void * p_context);
 int main(void)
 {
     int count = 1;
@@ -238,7 +239,7 @@ SysTick_Configuration();
 log_init();
 
 //sftdevice_test();
-ble_lbs_sample();
+
     //rt_pin_mode(RT_BSP_LED_PIN, PIN_MODE_OUTPUT);
 nrf_gpio_cfg_output(BOARD_PIN_LED_0);
 nrf_gpio_cfg_output(BOARD_PIN_LED_1);
@@ -276,8 +277,10 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         handler(p_observer->p_context);
     }
 #endif
+//ble_lbs_sample();
+nrf_sdh_freertos_init( NULL);
 #if 1
-    xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_SECURE_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
+    xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_SECURE_STACK_SIZE + 200, NULL,  2, &led_toggle_task_handle);
 
         /* Start timer for LED1 blinking */
  //   led_toggle_timer_handle = xTimerCreateStatic( "LED1", 1000, pdTRUE, NULL, led_toggle_timer_callback,&myTimerBuffer);
@@ -286,11 +289,16 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         /* Start FreeRTOS scheduler. */
     vTaskStartScheduler();
 #endif
-    while (true)
-    {
-        /* FreeRTOS should not be here... FreeRTOS goes back to the start of stack
-         * in vTaskStartScheduler function. */
-    }
+
+      while (true) {
+		
+		/* Wait for an event. */
+		__WFE();
+
+		/* Clear Event Register */
+		__SEV();
+		__WFE();
+	}
     return 0;
 }
 

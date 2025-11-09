@@ -58,7 +58,7 @@ typedef void (*nrf_sdh_freertos_task_hook_t)(void * p_context);
  *                          before entering the task loop.
  * @param[in]   p_context   Parameter for the function @p hook.
  */
-void nrf_sdh_freertos_init(nrf_sdh_freertos_task_hook_t hook, void * p_context);
+//void nrf_sdh_freertos_init(nrf_sdh_freertos_task_hook_t hook, void * p_context);
 
 /**
  * @}
