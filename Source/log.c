@@ -39,7 +39,7 @@ int log_init()
     uarte_config.config.hwfc = NRF_UARTE_HWFC_ENABLED;
 	uarte_config.cts_pin = BOARD_APP_UARTE_PIN_CTS;
 	uarte_config.rts_pin = BOARD_APP_UARTE_PIN_RTS;
-    uarte_config.interrupt_priority = 5;
+    uarte_config.interrupt_priority = 7;
     err = nrfx_uarte_init(&(uarte_inst),&uarte_config,NULL);
     return err;
 }

@@ -92,7 +92,7 @@
     </folder>
     <folder Name="bm_buttons">
       <file file_name="Source/bm_buttons/bm_buttons.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
     </folder>
     <folder Name="freeRTOS">
@@ -153,7 +153,7 @@
     <folder Name="Source">
       <configuration Name="Debug" build_exclude_from_build="No" />
       <file file_name="Source/ble_lbs_sample.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
+        <configuration Name="Debug" build_exclude_from_build="No" />
       </file>
       <file file_name="Source/nrfx/mdk/gcc_startup_nrf54l15_application.S" />
       <file file_name="Source/log.c">

@@ -233,6 +233,7 @@ int ble_lbs_sample(void)
        // nrf_sdh_freertos_init(advertising_start, &erase_bonds);
 
 idle:
+#if 0
 	while (true) {
 		
 		/* Wait for an event. */
@@ -242,6 +243,6 @@ idle:
 		__SEV();
 		__WFE();
 	}
-
+#endif
 	return 0;
 }

@@ -60,7 +60,7 @@ static int gpiote_init(void)
 
 
 	if (!nrfx_gpiote_init_check(&gpiote20_instance)) {
-		err = nrfx_gpiote_init(&gpiote20_instance, 5);
+		err = nrfx_gpiote_init(&gpiote20_instance, 7);
 		if (err != NRFX_SUCCESS) {
 			LOG_ERR("Failed to initialize gpiote20, err: 0x%08X", err);
 			return -EIO;
@@ -71,7 +71,7 @@ static int gpiote_init(void)
 	}
 
 	if (!nrfx_gpiote_init_check(&gpiote30_instance)) {
-		err = nrfx_gpiote_init(&gpiote30_instance, 5);
+		err = nrfx_gpiote_init(&gpiote30_instance, 7);
 		if (err != NRFX_SUCCESS) {
 			LOG_ERR("Failed to initialize gpiote30, err: 0x%08X", err);
 			return -EIO;

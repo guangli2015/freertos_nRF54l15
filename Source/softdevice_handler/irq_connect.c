@@ -52,7 +52,7 @@ int softdevice_irq_init(void)
 	IRQ_DIRECT_CONNECT(ECB00_IRQn, PRIO_LOW, ECB00_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(SWI00_IRQn, PRIO_LOW, SWI00_IRQHandler, 0);
 #endif  
-#if 1
+#if 0
     NVIC_SetPriority(RADIO_0_IRQn, 0);       // 等效于 PRIO_HIGH + IRQ_ZERO_LATENCY
     //NVIC_EnableIRQ(RADIO_0_IRQn);
 

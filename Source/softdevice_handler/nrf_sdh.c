@@ -200,7 +200,7 @@ int nrf_sdh_enable_request(void)
 
 	/* Enable event interrupt, the priority has already been set by the stack. */
 	NVIC_EnableIRQ((IRQn_Type)SD_EVT_IRQn);
-
+        NVIC_SetPriority(SD_EVT_IRQn, 4);
 	/* Notify observers about a finished SoftDevice enable process. */
 	sdh_state_evt_observer_notify(NRF_SDH_STATE_EVT_ENABLED);
 

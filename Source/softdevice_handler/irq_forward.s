@@ -49,9 +49,29 @@ ConsumeOrForwardIRQ:
     .globl  SVC_Handler
     .type   SVC_Handler, %function
 SVC_Handler:
+    /* 判断使用 MSP 还是 PSP */
+    TST     LR, #4
+    MRS     R0, MSP
+    BEQ     use_psp
+    MRS     R0, PSP
+use_psp:
+
+    /* 获取触发 SVC 的指令地址 */
+    LDR     R1, [R0, #24]     /* stacked PC */
+    LDRB    R2, [R1, #-2]     /* SVC 号 */
+
+    /* 判断是否为 SVC 0 */
+    CMP     R2, #0
+    BNE     SVC_Handler_softdevice
+
+    /* 调用 FreeRTOS 的 SVC handler */
+    LDR     R3, =SVCHandler_freeRTOS
+    BX      R3
+
+SVC_Handler_softdevice:
     LDR   R0, =NRF_SD_ISR_OFFSET_SVC
 ForwardIRQ_ForwardToSoftDevice:
-    /* SoftDevice interrupt vector is located in softdevice_vector_forward_address SVC_Handler_forward */
+    /* SoftDevice interrupt vector is located in softdevice_vector_forward_address */
     LDR   R1, =softdevice_vector_forward_address
     LDR   R1, [R1]
     LDR   R1, [R1, R0]  /* Vector value (with Thumb marker in bit 0) */

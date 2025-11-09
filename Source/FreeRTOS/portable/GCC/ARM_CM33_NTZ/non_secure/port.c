@@ -884,6 +884,7 @@ void SysTick_Configuration(void)
   //nrfx_clock_lfclk_start();
 }
 #endif
+extern bool volatile rtos_init_ok;
 __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FUNCTION */
 {
 #if 0
@@ -912,6 +913,7 @@ __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FU
     portNVIC_SYSTICK_CTRL_REG = portNVIC_SYSTICK_CLK_BIT_CONFIG | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT;
 #endif
 //SysTick_Configuration();
+rtos_init_ok = true;
 }
 /*-----------------------------------------------------------*/
 

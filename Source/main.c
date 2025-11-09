@@ -45,6 +45,7 @@ Purpose : Generic application start
 #include <nrfx_clock.h>
 #include "err_num.h"
 #include "bm_buttons.h"
+#include <stdbool.h>
 //#define CONFIG_BLE_CONN_PARAMS_INITIATE_ATT_MTU_EXCHANGE 1
 /** @brief Macro for extracting absolute pin number from the relative pin and port numbers. */
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
@@ -66,6 +67,7 @@ Purpose : Generic application start
 #define BOARD_PIN_BTN_0 NRF_PIN_PORT_TO_PIN_NUMBER(13, 1)
 #endif
 
+bool volatile rtos_init_ok = false;
 void SysTick_Configuration(void);
 
 /* Stack overflow hook. */
@@ -153,7 +155,7 @@ static void led_toggle_task_function (void * pvParameter)
        // nrf_gpio_pin_write(BOARD_PIN_LED_0, 1);
           nrf_gpio_pin_toggle(BOARD_PIN_LED_0);
         /* Delay a task for a given number of ticks */
-        vTaskDelay(5000);
+        vTaskDelay(1000);
 
         /* Tasks must be implemented to never return... */
     }
@@ -197,6 +199,7 @@ NRF_SDH_STACK_OBSERVER(m_nrf_sdh_ble_evts_poll, NRF_SDH_BLE_STACK_OBSERVER_PRIO)
 #endif
 extern int sftdevice_test(void);
 extern int softdevice_irq_init(void);
+extern int ble_lbs_sample(void);
 int main(void)
 {
     int count = 1;
@@ -229,10 +232,13 @@ int err;
         	return -1;
 	}
 #endif
+rtos_init_ok = false;
+softdevice_irq_init();
 SysTick_Configuration();
 log_init();
-softdevice_irq_init();
-sftdevice_test();
+
+//sftdevice_test();
+ble_lbs_sample();
     //rt_pin_mode(RT_BSP_LED_PIN, PIN_MODE_OUTPUT);
 nrf_gpio_cfg_output(BOARD_PIN_LED_0);
 nrf_gpio_cfg_output(BOARD_PIN_LED_1);
@@ -270,12 +276,12 @@ nrf_gpio_cfg_output(BOARD_PIN_LED_3);
         handler(p_observer->p_context);
     }
 #endif
-#if 0
-    xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
+#if 1
+    xTaskCreate(led_toggle_task_function, "LED0", configMINIMAL_SECURE_STACK_SIZE + 200, NULL, 2, &led_toggle_task_handle);
 
         /* Start timer for LED1 blinking */
-    led_toggle_timer_handle = xTimerCreateStatic( "LED1", 1000, pdTRUE, NULL, led_toggle_timer_callback,&myTimerBuffer);
-  xTimerStart(led_toggle_timer_handle, 0);
+ //   led_toggle_timer_handle = xTimerCreateStatic( "LED1", 1000, pdTRUE, NULL, led_toggle_timer_callback,&myTimerBuffer);
+ // xTimerStart(led_toggle_timer_handle, 0);
 
         /* Start FreeRTOS scheduler. */
     vTaskStartScheduler();
@@ -393,9 +399,10 @@ static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_conte
 
 
 	system_timeout_set_abs(last_count + CYC_PER_TICK);
-
+  if(rtos_init_ok ==  true)
+  {
         uint32_t ulPreviousMask;
-#if 0
+#if 1
     ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
     traceISR_ENTER();
     {
@@ -413,6 +420,7 @@ static void sys_clock_timeout_handler(int32_t id, uint64_t cc_val, void *p_conte
     }
     portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
 #endif
+  }
 }
 
 static void clk_event_handler(nrfx_clock_evt_type_t event){}
@@ -450,9 +458,9 @@ static int sys_clock_driver_init(void)
 void SysTick_Configuration(void)
 {
   nrfx_clock_init(clk_event_handler);	
-  //nrfx_clock_enable();
+//  nrfx_clock_enable();
   sys_clock_driver_init();
-  //nrfx_clock_lfclk_start();
+//  nrfx_clock_lfclk_start();
 }
 #endif
 /*************************** End of file ****************************/
