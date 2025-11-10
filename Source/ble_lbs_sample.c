@@ -15,7 +15,8 @@
 #include <bm_buttons.h>
 #include "prj_config.h"
 #include "log.h"
-#include "nrf_sdh_freertos.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #define LOG_DBG
 #define LOG_ERR
 #define LOG_WRN
@@ -24,7 +25,7 @@
 
 BLE_ADV_DEF(ble_adv); /* BLE advertising instance */
 BLE_LBS_DEF(ble_lbs); /* BLE LED Button Service instance */
-
+static volatile enum bm_buttons_evt_type button_status = BM_BUTTONS_RELEASE;
 /* Device information service is single-instance */
 
 static uint16_t conn_handle = BLE_CONN_HANDLE_INVALID;
@@ -90,6 +91,7 @@ static void ble_adv_evt_handler(struct ble_adv *adv, const struct ble_adv_evt *a
 static void button_handler(uint8_t pin, enum bm_buttons_evt_type action)
 {
 	LOG_INF("Button event callback: %d, %d", pin, action);
+        button_status = BM_BUTTONS_PRESS;
 	ble_lbs_on_button_change(&ble_lbs, conn_handle, action);
 }
 
@@ -236,16 +238,20 @@ int ble_lbs_sample(void)
         nrf_sdh_freertos_init(advertising_start, &erase_bonds);
 #endif
 idle:
-#if 0
-	while (true) {
-		
-		/* Wait for an event. */
-		__WFE();
-
-		/* Clear Event Register */
-		__SEV();
-		__WFE();
-	}
-#endif
+     uint16_t count =0;
+ while(1)
+    {
+      vTaskDelay(pdMS_TO_TICKS(1));
+      if(button_status == BM_BUTTONS_PRESS)
+      {
+        ++count;
+        if(count >= 500)
+        {
+            button_status=BM_BUTTONS_RELEASE;
+            count =0;
+            ble_lbs_on_button_change(&ble_lbs, conn_handle, BM_BUTTONS_RELEASE);
+        }
+      }
+    }
 	return 0;
 }

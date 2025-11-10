@@ -10,6 +10,7 @@
 #include <string.h>
 #include "log.h"
 #include "err_num.h"
+#include "prj_config.h"
 /**
  * @brief Clamp a value to a given range.
  *
@@ -23,14 +24,7 @@
  * @returns Clamped value.
  */
 #define CLAMP(val, low, high) (((val) <= (low)) ? (low) : MIN(val, high))
-#define CONFIG_BLE_CONN_PARAMS_MIN_CONN_INTERVAL 6
-#define CONFIG_BLE_CONN_PARAMS_MAX_CONN_INTERVAL 256
-#define CONFIG_BLE_CONN_PARAMS_PERIPHERAL_LATENCY 0
-#define CONFIG_BLE_CONN_PARAMS_SUP_TIMEOUT 100
-#define CONFIG_BLE_CONN_PARAMS_NEGOTIATION_RETRIES 2
-#define CONFIG_BLE_CONN_PARAMS_MAX_PERIPHERAL_LATENCY_DEVIATION 0
-#define CONFIG_BLE_CONN_PARAMS_MAX_SUP_TIMEOUT_DEVIATION 400
-#define CONFIG_BLE_CONN_PARAMS_DISCONNECT_ON_FAILURE 0
+
 #define LOG_DBG
 #define LOG_ERR
 #define LOG_WRN

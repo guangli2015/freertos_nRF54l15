@@ -11,7 +11,8 @@
 #include "log.h"
 #include "err_num.h"
 #include <stdbool.h>
-#define CONFIG_BLE_CONN_PARAMS_ATT_MTU 23
+#include "prj_config.h"
+
 #define LOG_DBG
 #define LOG_ERR
 #define LOG_WRN

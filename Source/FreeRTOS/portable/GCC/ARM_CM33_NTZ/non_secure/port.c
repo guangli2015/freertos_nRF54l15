@@ -776,7 +776,7 @@ PRIVILEGED_DATA static volatile uint32_t ulCriticalNesting = 0xaaaaaaaaUL;
 
 #endif /* configUSE_TICKLESS_IDLE */
 /*--------------------add GRTC driver for systick by Andrew------------------------------*/
-#if 0
+#if 1
 #define SYS_CLOCK_HW_CYCLES_PER_SEC 1000000
 #define SYS_CLOCK_TICKS_PER_SEC 1000
 #define CYC_PER_TICK                                                                               \
@@ -884,7 +884,7 @@ void SysTick_Configuration(void)
   //nrfx_clock_lfclk_start();
 }
 #endif
-extern bool volatile rtos_init_ok;
+//extern bool volatile rtos_init_ok;
 __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FUNCTION */
 {
 #if 0
@@ -912,8 +912,8 @@ __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void ) /* PRIVILEGED_FU
     portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
     portNVIC_SYSTICK_CTRL_REG = portNVIC_SYSTICK_CLK_BIT_CONFIG | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT;
 #endif
-//SysTick_Configuration();
-rtos_init_ok = true;
+SysTick_Configuration();
+//rtos_init_ok = true;
 }
 /*-----------------------------------------------------------*/
 
