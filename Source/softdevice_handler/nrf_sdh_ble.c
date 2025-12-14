@@ -10,8 +10,8 @@
 #include <nrf_sdh_ble.h>
 #include <ble.h>
 #include <string.h>
-#include "log.h"
-#define APP_RAM_START 0x20002468
+//#include "log.h"
+//#define APP_RAM_START 0x20002468
 #define	EFAULT 14	/* Bad address */
 #define CONFIG_NRF_SDH_BLE_CONN_TAG 99
 #define NRF_SDH_BLE_STACK_OBSERVER_PRIO 0
@@ -26,12 +26,13 @@
 #define LOG_WRN
 #define LOG_DBG
 #define LOG_ERR
+#define LOG_INF
 #define __ASSERT
 //LOG_MODULE_DECLARE(nrf_sdh, CONFIG_NRF_SDH_LOG_LEVEL);
 // Create section set "sdh_ble_observers".
 #define NRF_SDH_BLE_OBSERVER_PRIO_LEVELS 2
 NRF_SECTION_SET_DEF(sdh_ble_observers, nrf_sdh_ble_evt_observer, NRF_SDH_BLE_OBSERVER_PRIO_LEVELS);
-
+extern uint32_t __ram_origin;
 const char *gap_evt_tostr(int evt)
 {
 	switch (evt) {
@@ -98,7 +99,7 @@ int nrf_sdh_ble_app_ram_start_get(uint32_t *app_ram_start)
 		return -EFAULT;
 	}
 
-	*app_ram_start = APP_RAM_START;
+	*app_ram_start = (uint32_t)&__ram_origin;
 
 	return 0;
 }
@@ -108,7 +109,7 @@ static int default_cfg_set(void)
 	int err;
 	ble_cfg_t ble_cfg;
 
-	const uint32_t app_ram_start = APP_RAM_START;
+	const uint32_t app_ram_start = (uint32_t)&__ram_origin;
 	const uint8_t  conn_cfg_tag = CONFIG_NRF_SDH_BLE_CONN_TAG;
 
 	/* Save a configuration fo the BLE stack in a given connection tag.
@@ -197,8 +198,8 @@ extern  void sdh_state_evt_observer_notify(enum nrf_sdh_state_evt state);
 int nrf_sdh_ble_enable(uint8_t conn_cfg_tag)
 {
 	int err;
-	uint32_t app_ram_minimum = APP_RAM_START;
-	uint32_t const app_ram_start_link = APP_RAM_START;
+	uint32_t app_ram_minimum = (uint32_t)&__ram_origin;
+	uint32_t const app_ram_start_link = (uint32_t)&__ram_origin;
 
 	default_cfg_set();
 
